@@ -14,12 +14,9 @@ An optional control file can be saved so that sets of edits can easily
 be applied over and over again without having to remember all the
 command-line parameters.
 
-There’s been no attempt to make this process particularly efficient in terms of memory use or CPU cycles.
-The focus is more on making the process convenient and powerful for converting a Bible translation into something different.
-
 ## Edit command table
 
-See the EditCommandTable folder for details of the TSV (tab-separated values) table and how edit commands are expressed.
+See the EditCommandTable folder for details of the TSV (tab-separated values) table and how edit commands are expressed
 
 ## Control file
 
