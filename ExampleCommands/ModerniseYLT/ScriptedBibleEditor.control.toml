@@ -9,11 +9,11 @@
 #   tableName = "filepath"
 #
 
-title = "ScriptedBibleEditor Sample Control File"
-description = "To convert USFM files to create the draft OET-LV"
+title = "ScriptedBibleEditor YLT Sample Control File"
+description = "To convert USFM files to modernise the text of Young's Literal Translation"
 
 inputFolder = "../../TestFiles/source_YLT_USFM/"
-inputFilenameTemplate = "BBB_gloss.usfm"
+inputFilenameTemplate = "UUU_YLT.usfm"
 
 outputFolder = "../../TestFiles/modernised_YLT_USFM/"
 createOutputFolder = true
@@ -27,6 +27,6 @@ wordingAdjustments = "wordingAdjustments.commandTable.tsv"
 #adjustCapitalisation = "adjustCapitalisation.commandTable.tsv"
 #changeFromUSSpelling = "changeFromUSSpelling.commandTable.tsv"
 OTNames = "OTNames.commandTable.tsv"
-NTNames = "NTNames.commandTable.tsv"
+#NTNames = "NTNames.commandTable.tsv"
 #adjustPunctuation = "adjustPunctuation.commandTable.tsv"
 #cleanupYLT = "cleanupYLT.commandTable.tsv"

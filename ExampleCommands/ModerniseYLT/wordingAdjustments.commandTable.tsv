@@ -1,17 +1,22 @@
-Type	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+									affrighted			frightened		
+w									art			are		
 									beggetteth			bore		
 									beggetting			bearing		
+									behoveth			behoves		
 									blesseth			blessed		
 									bringeth			brought		
 									buildeth			built		
 									calleth			called		
-									casteth			threw		
 									causeth			caused		
 									completeth			completed		
 									cometh			came		
+									departeth			departs		
 									didst			did		
-									doth			did		
-									dost			will		
+									distributeth			distributes		
+w									doth			did		
+w									dost			will		
+									findeth			finds		
 									formeth			formed		
 									giveth			gave		
 									goeth			went		
@@ -19,21 +24,42 @@ Type	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									layeth			laid		
 									liveth			lived		
 									maketh			made		
+									mayest			may		
 									midst			middle		
 									openeth			opened		
 									planteth			planted		
 									prepareth			prepared		
+									reclineth			reclined		
 									remembereth			remembered		
 									resteth			rested		
 									saith			said		
 									seeth			saw		
+									Seest			See		
+									seemeth			seems		
 									sendeth			sent		
 									separateth			separated		
-									slain			killed		
+w									shalt			shall		
+									shewed			showed		
 									smelleth			smelled		
 									speaketh			spoke		
+									taketh			took		
+									teareth			tears		
+w									thee			you		
 									thence			there		
 									thine			yours		
-									thy			your		
+w									thy			your		
 									Thy			Your		
-									thou			you		
+w									thou			you		
+									Thou			You		
+									walketh			walks		
+									whither			where		
+w									ye			you		
+
+# Actual word changes
+									casteth			threw		
+									hallowed			holy		
+w									lo			behold		
+									presently			immediately		Or instantly???
+#									simile			parable		
+									slain			killed		
+									Whereby			How		

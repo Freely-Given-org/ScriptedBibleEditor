@@ -25,6 +25,7 @@
 """
 Module handling ScriptedBibleEditor functions.
 
+TODO: Need to allow parameters to be specified on the command line
 """
 from gettext import gettext as _
 from typing import Dict, List, NamedTuple, Tuple, Optional
@@ -33,18 +34,23 @@ import os
 import toml
 import logging
 from datetime import datetime
+import re
 
 import BibleOrgSysGlobals
 from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
 
 
-LAST_MODIFIED_DATE = '2022-07-01' # by RJH
+LAST_MODIFIED_DATE = '2022-07-14' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.04'
+PROGRAM_VERSION = '0.05'
 programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 debuggingThisModule = True
+
+
+ADDITIONAL_SEARCH_PATH = '../ExampleCommands/ModerniseYLT/'
+# ADDITIONAL_SEARCH_PATH = '../ExampleCommands/UpdateVLT/'
 
 
 DUMMY_VALUE = 999_999 # Some number bigger than the number of characters in a line
@@ -52,13 +58,13 @@ DUMMY_VALUE = 999_999 # Some number bigger than the number of characters in a li
 DEFAULT_CONTROL_FILE_NAME = f'{SHORT_PROGRAM_NAME}.control.toml'
 
 COMMAND_TABLE_NUM_COLUMNS = 15
-COMMAND_HEADER_LINE = 'Type	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment'
+COMMAND_HEADER_LINE = 'Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment'
 assert ' ' not in COMMAND_HEADER_LINE
 assert COMMAND_HEADER_LINE.count( '\t' ) == COMMAND_TABLE_NUM_COLUMNS - 1
 
 
 class EditCommand(NamedTuple):
-    editType: str
+    tags: str
     iBooks: list
     eBooks: list
     iMarkers: list
@@ -112,23 +118,23 @@ def loadControlFile() -> bool:
     fnPrint( debuggingThisModule, "loadControlFile()")
 
     searchPaths = [DEFAULT_CONTROL_FILE_NAME,]
-    if debuggingThisModule:
-        # searchPaths.append( f'../ExampleCommands/UpdateVLT/{DEFAULT_CONTROL_FILE_NAME}')
-        searchPaths.append( f'../ExampleCommands/ModerniseYLT/{DEFAULT_CONTROL_FILE_NAME}')
+    try:
+        if ADDITIONAL_SEARCH_PATH: # May not even be defined
+            searchPaths.append( f'{ADDITIONAL_SEARCH_PATH}{DEFAULT_CONTROL_FILE_NAME}')
+    except ValueError:
+        pass
     for filepath in searchPaths:
-        # dPrint( 'Never', debuggingThisModule, f"Trying control file: {filepath}…" )
         if os.path.isfile(filepath):
-            state.controlFolderpath = os.path.dirname(filepath)
+            state.controlFolderpath = os.path.dirname( filepath )
             vPrint( 'Normal', debuggingThisModule, f"Loading control file: {filepath}…" )
             with open(filepath, 'rt', encoding='utf=8') as controlFile:
                 state.controlData = toml.load( controlFile )
-                # print(f"{state.controlData=}")
                 displayTitle = f"'{state.controlData['title']}'" \
                                 if 'title' in state.controlData and state.controlData['title'] \
                                 else "control file"
                 vPrint( 'Quiet', debuggingThisModule, f"  Loaded {len(state.controlData)} parameter{'' if len(state.controlData)== 1 else 's'} from {displayTitle}." )
                 return len(state.controlData) > 0
-        # else: print( f"    '{filepath}' is not a file!" )
+    vPrint( 'Quiet', debuggingThisModule, f"No control file found in {searchPaths}." )
     return False
 # end of ScriptedBibleEditor.loadControlFile
 
@@ -203,7 +209,9 @@ def executeEdits() -> bool:
 
     if applyOrder == 'AllTablesFirst':
         for BBB in BibleOrgSysGlobals.loadedBibleBooksCodes:
-            inputFilename = state.controlData['inputFilenameTemplate'].replace( 'BBB', BBB )
+            UUU = BibleOrgSysGlobals.loadedBibleBooksCodes.getUSFMAbbreviation( BBB ) or ''
+            inputFilename = state.controlData['inputFilenameTemplate'] \
+                                    .replace( 'BBB', BBB ).replace( 'UUU', UUU.upper() )
             outputFilename = inputFilename # for now at least
             inputFilepath = os.path.join( inputFolder, inputFilename )
             if os.path.isfile( inputFilepath ):
@@ -246,9 +254,12 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
             vPrint( 'Verbose', debuggingThisModule, f"    Skipping excluded '{BBB}' book…" )
             continue
 
+        editFunction = executeRegexEditChunkCommand if 'w' in command.tags or command.preText or command.postText \
+                        else executeEditChunkCommand
+
         if not command.iMarkers and not command.eMarkers and not command.iRefs and not command.eRefs:
             # Then it's easier -- don't care about USFM structure
-            adjustedText = executeEditChunkCommand( BBB, adjustedText, command )
+            adjustedText = editFunction( BBB, adjustedText, command )
         else: # need to parse USFM by line
             dPrint( 'Verbose', debuggingThisModule, f"Need to parse USFM by line to apply {command}!" )
             newLines = []
@@ -298,39 +309,11 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
                     halt
                     continue
                 # If we get here, we need to process the USFM field
-                newLines.append( executeEditChunkCommand( f'{BCVRef}~{marker}', line, command ) )
+                newLines.append( editFunction( f'{BCVRef}~{marker}', line, command ) )
             adjustedText = '\n'.join( newLines )
 
     return adjustedText
 # end of ScriptedBibleEditor.executeEditCommands
-
-
-def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> str:
-    """
-    Assumes we're in the right field.
-
-    Checks previous and following text as necessary
-    """
-    fnPrint( debuggingThisModule, f"executeEditChunkCommand( {where}, {len(inputText)}, {command} )" )
-    adjustedText = inputText
-
-    if not command.preText and not command.postText:
-        # Then it's easier -- don't case about context
-        sourceCount = adjustedText.count( command.searchText )
-        if sourceCount > 0:
-            vPrint( 'Verbose', debuggingThisModule,
-                f"    About to {'loop ' if command.editType=='l' else ''}replace {sourceCount} instance{'' if sourceCount==1 else 's'} of {command.searchText!r} with {command.replaceText!r} in {where}" )
-            adjustedText = adjustedText.replace( command.searchText, command.replaceText )
-            if command.editType == 'l': # for loop -- handles overlapping strings
-                while command.searchText in adjustedText: # keep at it
-                    adjustedText = adjustedText.replace( command.searchText, command.replaceText )
-        else:
-            vPrint( 'Verbose', debuggingThisModule, f"    No instances of {command.searchText!r} in {where}!" )
-    else: # need to check context of search text
-        print( f"Need to check context of {command} in {where}" ); not_written_yet
-
-    return adjustedText
-# end of ScriptedBibleEditor.executeEditChunkCommand
 
 
 def splitUSFMMarkerFromText( line:str ) -> Tuple[Optional[str],str]:
@@ -377,6 +360,73 @@ def splitUSFMMarkerFromText( line:str ) -> Tuple[Optional[str],str]:
             text = lineAfterLeadingBackslash[ixSP+1:] # We drop the space completely
     return marker, text
 # end if ScriptedBibleEditor.splitUSFMMarkerFromText
+
+
+def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> str:
+    """
+    Assumes we're in the right field.
+
+    Checks previous and following text as necessary.
+    """
+    fnPrint( debuggingThisModule, f"executeEditChunkCommand( {where}, {len(inputText)}, {command} )" )
+    assert not command.preText and not command.postText and 'w' not in command.tags
+    adjustedText = inputText
+
+    sourceCount = adjustedText.count( command.searchText )
+    if sourceCount > 0:
+        vPrint( 'Verbose', debuggingThisModule,
+            f"    About to {'loop ' if command.tags=='l' else ''}replace {sourceCount} instance{'' if sourceCount==1 else 's'} of {command.searchText!r} with {command.replaceText!r} in {where}" )
+        adjustedText = adjustedText.replace( command.searchText, command.replaceText )
+        lastCount = adjustedText.count( command.searchText )
+        vPrint( 'Info', debuggingThisModule, f"      Replaced {sourceCount-lastCount} instances of '{command.searchText}' with '{command.replaceText}' {where}" )
+        if 'l' in command.tags: # for loop -- handles overlapping strings
+            while command.searchText in adjustedText: # keep at it
+                adjustedText = adjustedText.replace( command.searchText, command.replaceText )
+                newCount = adjustedText.count( command.searchText )
+                if newCount >= lastCount: # Could be in an endless loop
+                    logging.critical( f"ABORTED endless loop replacing '{command.searchText}' with '{command.replaceText}'")
+                    break
+                lastCount = newCount
+    else:
+        vPrint( 'Verbose', debuggingThisModule, f"    No instances of {command.searchText!r} in {where}!" )
+
+    return adjustedText
+# end of ScriptedBibleEditor.executeEditChunkCommand
+
+
+def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> str:
+    """
+    Assumes we're in the right text field.
+
+    Uses regex to only replace whole words.
+
+    Checks previous and following text as necessary.
+    """
+    fnPrint( debuggingThisModule, f"executeRegexEditChunkCommand( {where}, {len(inputText)}, {command} )" )
+    adjustedText = inputText
+
+    myRegexSearchString = f'({command.searchText})'
+    myRegexReplaceString = command.replaceText
+    if command.preText:
+        myRegexSearchString = f'({command.preText}){myRegexSearchString}'
+        myRegexReplaceString = f'\\1{myRegexReplaceString}'
+    elif 'w' in command.tags:
+        myRegexSearchString = f'\\b{myRegexSearchString}'
+    if command.postText:
+        myRegexSearchString = f'{myRegexSearchString}({command.postText})'
+        myRegexReplaceString = f'{myRegexReplaceString}\\3'
+    elif 'w' in command.tags:
+        myRegexSearchString = f'{myRegexSearchString}\\b'
+    compiledSearchRegex = re.compile( myRegexSearchString )
+
+    while True:
+        adjustedText, numReplacements = compiledSearchRegex.subn( myRegexReplaceString, adjustedText )
+        if numReplacements:
+            vPrint( 'Info', debuggingThisModule, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' with '{command.replaceText}' {where}" )
+        if numReplacements==0 or 'l' not in command.tags: break
+
+    return adjustedText
+# end of ScriptedBibleEditor.executeRegexEditChunkCommand
 
 
 

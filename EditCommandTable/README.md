@@ -14,7 +14,7 @@ and then in the folder where the input file(s) are located.
 
 The file is a UTF-8 encoded 15-column table where table columns are separated by tab characters.
 The first row in the file is the column headers which should be
-    Type	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+    Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
 Unix line-endings are recommended, but Windows line-endings will also be acceptable.
 The file may begin with an optional Byte Order Marker (BOM).
 Blank lines are ignored

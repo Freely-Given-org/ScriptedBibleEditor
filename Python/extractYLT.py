@@ -39,29 +39,21 @@ import BibleOrgSysGlobals
 from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
 
 
-LAST_MODIFIED_DATE = '2022-07-01' # by RJH
+LAST_MODIFIED_DATE = '2022-07-14' # by RJH
 SHORT_PROGRAM_NAME = "extractYLT"
 PROGRAM_NAME = "Extract YLT USFM files"
-PROGRAM_VERSION = '0.01'
+PROGRAM_VERSION = '1.00'
 programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 debuggingThisModule = True
 
 
-state = None
-class State:
-    def __init__( self ) -> None:
-        """
-        Constructor:
-        """
-        self.bookTableFilepath = Path( '../../CNTR-GNT/sourceExports/book.csv' )
-        self.sourceTableFilepath = Path( '../../CNTR-GNT/sourceExports/collation.8.updated.csv' )
-    # end of extractYLT.__init__
-
-
 YLT_INPUT_FILENAME = 'ylt.txt'
 YLT_INPUT_FILEPATH = Path(f'/mnt/SSDs/Bibles/English translations/YLT/{YLT_INPUT_FILENAME}')
-YLT_USFM_OUTPUT_FOLDERPATH = Path( "../TestFiles/source_YLT_USFM/" )
+YLT_USFM_OUTPUT_FOLDERPATH = Path( '../TestFiles/source_YLT_USFM/' )
+# USFM_OUTPUT_FILENAME_TEMPLATE = 'BBB_YLT.usfm' # Use BOS book codes
+USFM_OUTPUT_FILENAME_TEMPLATE = 'UUU_YLT.usfm' # Use USFM book codes
+
 
 BOOK_NAME_MAP = {
     1: 'Genesis', 2: 'Exodus', 3: 'Leviticus', 4: 'Numbers', 5: 'Deuteronomy',
@@ -108,8 +100,6 @@ def main() -> None:
     """
     """
     BibleOrgSysGlobals.introduceProgram( __name__, programNameVersion, LAST_MODIFIED_DATE )
-    global state
-    state = State()
 
     if load_YLT_data():
         export_usfm()
@@ -173,7 +163,10 @@ def export_usfm() -> bool:
 
             if usfm_text:
                 # assert '  ' not in usfm_text
-                usfm_filepath = YLT_USFM_OUTPUT_FOLDERPATH.joinpath( f"{BOS_BOOK_ID_MAP[last_bookNumber]}_gloss.usfm" )
+                usfm_filepath = YLT_USFM_OUTPUT_FOLDERPATH.joinpath( USFM_OUTPUT_FILENAME_TEMPLATE
+                                .replace( 'BBB', BOS_BOOK_ID_MAP[last_bookNumber] )
+                                .replace( 'UUU', USFM_BOOK_ID_MAP[last_bookNumber] )
+                                )
                 with open(usfm_filepath, 'wt', encoding='utf-8') as output_file:
                     output_file.write(f"{usfm_text}\n")
                 numFilesWritten += 1
@@ -203,12 +196,15 @@ def export_usfm() -> bool:
 
     if usfm_text: # write the last book
         # assert '  ' not in usfm_text
-        usfm_filepath = YLT_USFM_OUTPUT_FOLDERPATH.joinpath( f"{BOS_BOOK_ID_MAP[last_bookNumber]}_gloss.usfm" )
+        usfm_filepath = YLT_USFM_OUTPUT_FOLDERPATH.joinpath( USFM_OUTPUT_FILENAME_TEMPLATE
+                                .replace( 'BBB', BOS_BOOK_ID_MAP[last_bookNumber] )
+                                .replace( 'UUU', USFM_BOOK_ID_MAP[last_bookNumber] )
+                                )
         with open(usfm_filepath, 'wt', encoding='utf-8') as output_file:
             output_file.write(f"{usfm_text}\n")
         numFilesWritten += 1
 
-    vPrint( 'Quiet', debuggingThisModule, f"Wrote {numFilesWritten} files.\n")
+    vPrint( 'Quiet', debuggingThisModule, f"  Wrote {numFilesWritten} files.\n")
     return True
 # end of extractYLT.export_usfm
 
