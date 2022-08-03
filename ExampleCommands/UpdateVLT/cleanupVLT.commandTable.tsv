@@ -1,0 +1,17 @@
+Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+# Unusual words and word combinations
+				id					anointed|messiah			anointed 		
+
+# Punctuation and spaces
+				id					 - 			 	removeHyphenSpaces	Remove hyphen (untranslated article) surrounded by spaces
+				id					- 			 	removeHyphenSpace	Remove hyphen (untranslated article) followed by space
+				id					 -			 	removeSpaceHyphen	Remove hyphen (untranslated article) preceded by space
+
+									=>			_ 	removeInsertStart	Remove indicator of start of inserted words
+									<=			 _	removeInsertEnd	Remove indicator of end of inserted words
+
+l				id					_ 			_	removeUnderlineSpace	Remove space after underline (rejoins words)
+l									__  			_ 	reduceDoubleUnderlines	Reduce double underlines in entire file
+l									  			 	reduceDoubleSpaces	Reduce double spaces in entire file
+
+#									 not _ 			 not _	joinUnderlineAfterNot	Join a floating underline to the correct word

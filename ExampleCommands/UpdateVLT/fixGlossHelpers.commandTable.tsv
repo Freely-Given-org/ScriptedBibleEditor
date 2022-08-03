@@ -1,0 +1,29 @@
+Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+									/a/			\add +a\add*		
+									/an/			\add +an\add*		
+									/the/			\add +the\add*		
+									/The/			\add +The\add*		
+
+									/am/			am_		
+									/are/			are_		
+									/be/			be_		
+									/being/			being_		
+									/has/			has_		
+									/is/			is_		
+									/is_being/			is_being_		
+									/may/			may_		
+									/may_be/			may_be_		
+									/was/			was_		
+									/were/			were_		
+									/will_be/			will_be_		
+									/had/			had_		
+									/have/			have_		
+									/having/			having_		
+									/having_been/			having_been_		
+
+									/Be/			Be_		
+									/Is/			Is_		
+									/Having/			Having_		
+
+									/to/			to_		
+									/to_be/			to_be_		

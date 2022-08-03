@@ -1,0 +1,14 @@
+Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+#l									  			 	removeDoubleSpaces	Remove double spaces in entire file
+
+									, “			: 	replaceDoubleOpenQuote	Replace open quote with colon
+									”				removeDoubleCloseQuote	Remove close quote
+									, ‘			: 	replaceSingleOpenQuote	Replace open quote with colon
+									’				removeSingleCloseQuote	Remove close quote
+
+				rem					“				removeDoubleOpenQuote	Remove any remaining double open quotes
+				rem					‘				removeSingleOpenQuote	Remove any remaining single open quotes
+
+				rem					¶				removePilcrow	Remove any paragraph markers
+
+l									  			 	removeDoubleSpaces	Remove double spaces in entire file

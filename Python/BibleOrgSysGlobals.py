@@ -3,7 +3,7 @@
 #
 # BibleOrgSysGlobals.py for ScriptedBibleEditor
 #
-# Module handling Global variables for our Bible Organisational System
+# Module handling Global functions and variables for our Bible Organisational System
 #
 # Copyright (C) 2010-2022 Robert Hunt
 # Author: Robert Hunt <Freely.Given.org+BOS@gmail.com>
@@ -1434,8 +1434,8 @@ def introduceProgram( theirName:str, theirProgramNameVersion:str, theirLastModif
         vPrint( 'Quiet', debuggingThisModule, theirProgramNameVersion )
 
     vPrint( 'Normal', debuggingThisModule, """  This program comes with ABSOLUTELY NO WARRANTY.
-  It is free software, and you are welcome to redistribute it under certain conditions.
-  See the license in file 'gpl-3.0.txt' for more details.
+  It is free software, and you are welcome to redistribute it freely.
+  See the CC0 licence in file 'LICENSE' for more details.
   """ )
 # end of BibleOrgSysGlobals.introduceProgram function
 

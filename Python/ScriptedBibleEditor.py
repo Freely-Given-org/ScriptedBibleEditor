@@ -43,14 +43,16 @@ from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
 LAST_MODIFIED_DATE = '2022-07-14' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.05'
+PROGRAM_VERSION = '0.06'
 programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
-debuggingThisModule = True
+debuggingThisModule = False
 
 
-ADDITIONAL_SEARCH_PATH = '../ExampleCommands/ModerniseYLT/'
-# ADDITIONAL_SEARCH_PATH = '../ExampleCommands/UpdateVLT/'
+# TODO: Need to allow parameters to be specified on the command line
+# Choose one of the following
+# ADDITIONAL_SEARCH_PATH = '../ExampleCommands/ModerniseYLT/'
+ADDITIONAL_SEARCH_PATH = '../ExampleCommands/UpdateVLT/'
 
 
 DUMMY_VALUE = 999_999 # Some number bigger than the number of characters in a line
@@ -104,18 +106,19 @@ def main() -> None:
     global state
     state = State()
 
-    if loadControlFile():
-        if loadCommandTables():
-            executeEdits()
-        else: vPrint( 'Quiet', debuggingThisModule, "No command tables found!\n" )
+    if controlFilepath := findControlFile():
+        if loadControlFile( controlFilepath ):
+            if loadCommandTables():
+                executeEditsOnAllFiles()
+            else: vPrint( 'Quiet', debuggingThisModule, "No command tables found!\n" )
     else: vPrint( 'Quiet', debuggingThisModule, "No control file found!\n" )
 # end of ScriptedBibleEditor.main
 
 
-def loadControlFile() -> bool:
+def findControlFile():
     """
     """
-    fnPrint( debuggingThisModule, "loadControlFile()")
+    fnPrint( debuggingThisModule, "findControlFile()")
 
     searchPaths = [DEFAULT_CONTROL_FILE_NAME,]
     try:
@@ -123,18 +126,29 @@ def loadControlFile() -> bool:
             searchPaths.append( f'{ADDITIONAL_SEARCH_PATH}{DEFAULT_CONTROL_FILE_NAME}')
     except ValueError:
         pass
+
     for filepath in searchPaths:
         if os.path.isfile(filepath):
-            state.controlFolderpath = os.path.dirname( filepath )
-            vPrint( 'Normal', debuggingThisModule, f"Loading control file: {filepath}…" )
-            with open(filepath, 'rt', encoding='utf=8') as controlFile:
-                state.controlData = toml.load( controlFile )
-                displayTitle = f"'{state.controlData['title']}'" \
-                                if 'title' in state.controlData and state.controlData['title'] \
-                                else "control file"
-                vPrint( 'Quiet', debuggingThisModule, f"  Loaded {len(state.controlData)} parameter{'' if len(state.controlData)== 1 else 's'} from {displayTitle}." )
-                return len(state.controlData) > 0
+            return filepath
+
     vPrint( 'Quiet', debuggingThisModule, f"No control file found in {searchPaths}." )
+# end of ScriptedBibleEditor.findControlFile
+
+
+def loadControlFile( filepath ) -> bool:
+    """
+    """
+    fnPrint( debuggingThisModule, f"loadControlFile( {filepath} )")
+
+    state.controlFolderpath = os.path.dirname( filepath )
+    vPrint( 'Normal', debuggingThisModule, f"Loading control file: {filepath}…" )
+    with open(filepath, 'rt', encoding='utf=8') as controlFile:
+        state.controlData = toml.load( controlFile )
+        displayTitle = f"'{state.controlData['title']}'" \
+                        if 'title' in state.controlData and state.controlData['title'] \
+                        else "control file"
+        vPrint( 'Quiet', debuggingThisModule, f"  Loaded {len(state.controlData)} parameter{'' if len(state.controlData)== 1 else 's'} from {displayTitle}." )
+        return len(state.controlData) > 0
     return False
 # end of ScriptedBibleEditor.loadControlFile
 
@@ -178,11 +192,11 @@ def loadCommandTables() -> bool:
 # end of ScriptedBibleEditor.loadCommandTables
 
 
-def executeEdits() -> bool:
+def executeEditsOnAllFiles() -> bool:
     """
     Returns a success flag.
     """
-    fnPrint( debuggingThisModule, "executeEdits()" )
+    fnPrint( debuggingThisModule, "executeEditsOnAllFiles()" )
 
     inputFolder = os.path.join( state.controlFolderpath, state.controlData['inputFolder'] )
     if not os.path.isdir(inputFolder):
@@ -203,7 +217,7 @@ def executeEdits() -> bool:
         if not os.path.isdir( outputFolder ):
             os.makedirs( outputFolder )
 
-    applyOrder = 'AllTablesFirst'
+    applyOrder = 'AllTablesFirst' # default
     if 'applyOrder' in state.controlData and state.controlData['applyOrder']:
         applyOrder = state.controlData['applyOrder']
 
@@ -219,11 +233,8 @@ def executeEdits() -> bool:
                 with open( inputFilepath, 'rt', encoding='utf-8') as inputFile:
                     inputText = inputFile.read()
                 vPrint( 'Info', debuggingThisModule, f"    Read {len(inputText):,} characters from {inputFilename}" )
-                appliedText = inputText
-                for commandTableName, commands in state.commandTables.items():
-                    vPrint( 'Info', debuggingThisModule, f"    Processing {commandTableName} on {inputFilename}…" )
-                    appliedText = executeEditCommands( BBB, appliedText, commands )
-                if appliedText != inputText:
+                appliedText = executeEdits( BBB, inputText, state.commandTables )
+                if appliedText != inputText: # Make a backup before overwriting the input file
                     appliedText = appliedText.replace( '\n\\h ', f"\n\\rem USFM file edited {datetime.now().strftime('%Y-%m-%d %H:%M')} by {programNameVersion}\n\\h " )
                     outputFilepath = os.path.join( outputFolder, outputFilename )
                     if outputFilepath == inputFilename:
@@ -236,6 +247,21 @@ def executeEdits() -> bool:
         other_orders_not_implemented_yet
 
     return False
+# end of ScriptedBibleEditor.executeEditsOnAllFiles
+
+
+def executeEdits( BBB:str, inputText:str, commandTables ) -> str:
+    """
+    Returns a modified string.
+    """
+    fnPrint( debuggingThisModule, f"executeEdits( {len(inputText)} )" )
+    appliedText = inputText
+
+    for commandTableName, commands in commandTables.items():
+        vPrint( 'Info', debuggingThisModule, f"    Applying {commandTableName}…" )
+        appliedText = executeEditCommands( BBB, appliedText, commands )
+
+    return appliedText
 # end of ScriptedBibleEditor.executeEdits
 
 
