@@ -39,11 +39,15 @@ import re
 import BibleOrgSysGlobals
 from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
 
+import sys
+sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitted to PyPI
+from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
-LAST_MODIFIED_DATE = '2022-07-14' # by RJH
+
+LAST_MODIFIED_DATE = '2022-08-24' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.06'
+PROGRAM_VERSION = '0.07'
 programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 debuggingThisModule = False
@@ -66,21 +70,21 @@ assert COMMAND_HEADER_LINE.count( '\t' ) == COMMAND_TABLE_NUM_COLUMNS - 1
 
 
 class EditCommand(NamedTuple):
-    tags: str
-    iBooks: list
-    eBooks: list
-    iMarkers: list
-    eMarkers: list
-    iRefs: list
-    eRefs: list
-    preText: str
-    sCase: str
-    searchText: str
-    postText: str
-    rCase: str
-    replaceText: str
-    name: str
-    comment: str
+    tags: str           # 0
+    iBooks: list        # 1
+    eBooks: list        # 2
+    iMarkers: list      # 3
+    eMarkers: list      # 4
+    iRefs: list         # 5
+    eRefs: list         # 6
+    preText: str        # 7
+    sCase: str          # 8
+    searchText: str     # 9
+    postText: str       # 10
+    rCase: str          # 11
+    replaceText: str    # 12
+    name: str           # 13
+    comment: str        # 14
 
 
 class State:
@@ -105,6 +109,9 @@ def main() -> None:
 
     global state
     state = State()
+
+    load_transliteration_table('Hebrew')
+    load_transliteration_table('Greek')
 
     if controlFilepath := findControlFile():
         if loadControlFile( controlFilepath ):
@@ -172,17 +179,31 @@ def loadCommandTables() -> bool:
                         line = line.rstrip( '\r\n' )
                         if not line or line.startswith( '#' ): continue
                         tab_count = line.count( '\t' )
-                        if tab_count != COMMAND_TABLE_NUM_COLUMNS - 1:
-                            logging.error( f"Skipping line {line_number} which contains {tab_count} tabs (instead of {COMMAND_TABLE_NUM_COLUMNS - 1})" )
-                            continue
+                        if tab_count>9 and tab_count < (COMMAND_TABLE_NUM_COLUMNS - 1): # Some editors delete trailing columns
+                            line += '\t' * (COMMAND_TABLE_NUM_COLUMNS - 1 - tab_count) # Add back the empty columns
+                            tab_count = line.count( '\t' )
+                        if tab_count != (COMMAND_TABLE_NUM_COLUMNS - 1):
+                            logging.critical( f"Skipping line {line_number} which contains {tab_count} tabs (instead of {COMMAND_TABLE_NUM_COLUMNS - 1})" )
+                            halt; continue
                         if line == COMMAND_HEADER_LINE:
                             continue # as no need to save this
                         fields = line.split( '\t' )
-                        state.commandTables[name].append( EditCommand( fields[0],
+                        tags, searchText, replaceText = fields[0], fields[9], fields[12]
+                        if 'H' in tags:
+                            newReplaceText = transliterate_Hebrew( replaceText, searchText[0].isupper() )
+                            if newReplaceText != replaceText:
+                                print(f" Converted Hebrew '{replaceText}' to '{newReplaceText}'")
+                                replaceText = newReplaceText
+                        if 'G' in tags:
+                            newReplaceText = transliterate_Greek( replaceText )
+                            if newReplaceText != replaceText:
+                                print(f" Converted Greek '{replaceText}' to '{newReplaceText}'")
+                                replaceText = newReplaceText
+                        state.commandTables[name].append( EditCommand( tags,
                                 list(fields[1].split(',')) if fields[1] else [], list(fields[2].split(',')) if fields[2] else [],
                                 list(fields[3].split(',')) if fields[3] else [], list(fields[4].split(',')) if fields[4] else [],
                                 list(fields[5].split(',')) if fields[5] else [], list(fields[6].split(',')) if fields[6] else [],
-                                fields[7], fields[8], fields[9], fields[10], fields[11], fields[12], fields[13], fields[14] ) )
+                                fields[7], fields[8], searchText, fields[10], fields[11], replaceText, fields[13], fields[14] ) )
                 vPrint( 'Normal', debuggingThisModule, f"    Loaded {len(state.commandTables[name])} command{'' if len(state.commandTables[name])==1 else 's'} for '{name}'." )
             else: vPrint( 'Normal', debuggingThisModule, f"      '{completeFilepath}' is not a file!" )
         return True

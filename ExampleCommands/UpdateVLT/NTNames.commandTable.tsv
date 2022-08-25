@@ -1,35 +1,39 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
 # Individuals
-									Andrew			Andreas		
-									Annas			Hannas		
-									Caesar			Kaisar		
-									Caiaphas			Kaiafas		
-									Cephas			Κēfas		
-w									Herodias			Hērōdias		
-w									Herod			Hērōdēs		
-				id,toc1,toc2,toc3					John			Yōannes		
-									Nathanael			Νathanaēl		
-									Nicodemus			Nicodēmos		
-									Peter			Petros		
-w									Philippi			Filippos		
-w									Philip			Filippos		
-w									Pilate			Pilatos		
-w									Pontius			Pontios		
-w									Simon			Simōna		
-									Tiberias			 Tiberios		
-									Zacharias			 Zaχarias		
+G									Andrew			Ἀνδρέας
+G									Annas			Ἄννας
+G									Caesar			Καῖσαρ
+G									Caiaphas			Καιάφας
+G									Cephas			Κηφᾶς
+wG									Herodias			Ἡρῳδιὰς
+wG									Herod			Ἡρῴδης
+G				id,toc1,toc2,toc3					John			Ἰωάννης
+G									Lysanias			Λυσανίος
+G									Nathanael			Ναθαναὴλ
+G									Nicodemus			Νικόδημος
+G									Peter			Πέτρος
+wG									Philip			Φίλιππος
+wG									Pilate			Πιλᾶτος
+wG									Pontius			Πόντιος
+wG									Simon			Σίμων
+G									Tiberias			 Τιβερίος
+G									Zacharias			 Ζαχαρίας
 
 # Tribes/Groups
-									Galileans			Galilaios		
-									Magdalene			from_Magdala		
-									Samaritans			Samareitēs		
+wG									Galilean			Γαλιλαῖος
+G									Galileans			Γαλιλαῖος
+G									Magdalene			from_Μαγδαλά
+wG									Samaritan			Σαμαριτῶν
+G									Samaritans			Σαμαριτῶν
 
 # Places
-									Bethany			Bēthania		
-									Bethlehem			Bēthle'em		
-									Bethsaida			Βēthsaida		
-									Cana			Kanaē		
-									Capernaum			Kapernaoum		
-									Galilee			Galilaia		
-									Judea			Youdaia		
-									Nazareth			Nazaret		
+G									Bethany			Βηθανία
+G									Bethlehem			Βηθλεέμ
+G									Bethsaida			Βηθσαϊδά
+G									Cana			Κανὰ
+G									Capernaum			Καφαρναοὺμ
+G									Galilee			Γαλιλαία
+G									Joppa			Ἰόππῃ
+G									Judea			Ἰουδαία
+G									Nazareth			Ναζαρέτ
+wG									Philippi			Φιλίππου
