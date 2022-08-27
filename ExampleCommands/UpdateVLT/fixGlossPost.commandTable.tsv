@@ -1,8 +1,19 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
-									‹day›			\add >day\add*		
-									‹one›			\add >one\add*		
-									‹ones›			\add >ones\add*		
-									‹thing›			\add >thing\add*		
-									‹things›			\add >things\add*		
+#  > indicates GlossPost
+									‹day›			\add >day\add*
+									‹one›			\add >one\add*
+									‹ones›			\add >ones\add*
+									‹thing›			\add >thing\add*
+									‹things›			\add >things\add*
 
-									‹am›			\add =am\add*		
+# = indicates GlossPost copula
+									‹am›			\add =am\add*
+									‹is›			\add =is\add*
+									‹than›			\add =than\add*
+
+# ~ indicates GlossPost direct object
+									‹him›			\add ~him\add*
+
+# Add for the remainder (mostly nouns like "clothes" or "water")
+									‹			\add +
+									›			\add*

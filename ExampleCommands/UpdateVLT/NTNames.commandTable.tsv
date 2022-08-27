@@ -1,14 +1,19 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
 # Individuals
+G									Alpheus			Ἀλφαίος
 G									Andrew			Ἀνδρέας
 G									Annas			Ἄννας
+G									Bartholomew			Βαρθολομαῖος
 G									Caesar			Καῖσαρ
 G									Caiaphas			Καιάφας
 G									Cephas			Κηφᾶς
 wG									Herodias			Ἡρῳδιὰς
 wG									Herod			Ἡρῴδης
+wG									Iscariot			Ἰσκαριώτης
 G				id,toc1,toc2,toc3					John			Ἰωάννης
+G									Lebbaios			Λεββαῖος
 G									Lysanias			Λυσανίος
+G									Matthew			Ματθαῖος
 G									Nathanael			Ναθαναὴλ
 G									Nicodemus			Νικόδημος
 G									Peter			Πέτρος
@@ -16,24 +21,31 @@ wG									Philip			Φίλιππος
 wG									Pilate			Πιλᾶτος
 wG									Pontius			Πόντιος
 wG									Simon			Σίμων
+G									Thaddeus			 Θαδδαῖος
+G									Thomas			 Θωμᾶς
 G									Tiberias			 Τιβερίος
 G									Zacharias			 Ζαχαρίας
+G									Zebedee			 Ζεβεδαῖος
 
 # Tribes/Groups
+G									Canaanite			 member_of_Κανανίτης
 wG									Galilean			Γαλιλαῖος
 G									Galileans			Γαλιλαῖος
 G									Magdalene			from_Μαγδαλά
-wG									Samaritan			Σαμαριτῶν
-G									Samaritans			Σαμαριτῶν
 
 # Places
 G									Bethany			Βηθανία
 G									Bethlehem			Βηθλεέμ
 G									Bethsaida			Βηθσαϊδά
-G									Cana			Κανὰ
+wG									Cana			Κανὰ
 G									Capernaum			Καφαρναοὺμ
+G									Decapolis			Δεκάπολις
 G									Galilee			Γαλιλαία
 G									Joppa			Ἰόππῃ
 G									Judea			Ἰουδαία
 G									Nazareth			Ναζαρέτ
 wG									Philippi			Φιλίππου
+wG									Syria			Συρία
+
+# Currency
+G									assarion			ἀσσάριον

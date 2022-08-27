@@ -35,6 +35,7 @@ import toml
 import logging
 from datetime import datetime
 import re
+import unicodedata
 
 import BibleOrgSysGlobals
 from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
@@ -44,10 +45,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2022-08-24' # by RJH
+LAST_MODIFIED_DATE = '2022-08-25' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.07'
+PROGRAM_VERSION = '0.08'
 programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 debuggingThisModule = False
@@ -169,7 +170,7 @@ def loadCommandTables() -> bool:
         for name, givenFilepath in state.controlData['commandTables'].items():
             completeFilepath = os.path.join( state.controlFolderpath, givenFilepath )
             if os.path.isfile(completeFilepath):
-                vPrint( 'Normal', debuggingThisModule, f"  Loading command table file: {completeFilepath}…" )
+                vPrint( 'Info', debuggingThisModule, f"  Loading command table file: {completeFilepath}…" )
                 assert name not in state.commandTables
                 state.commandTables[name] = []
                 with open( completeFilepath, 'rt', encoding='utf-8' ) as commandTableFile:
@@ -192,13 +193,21 @@ def loadCommandTables() -> bool:
                         if 'H' in tags:
                             newReplaceText = transliterate_Hebrew( replaceText, searchText[0].isupper() )
                             if newReplaceText != replaceText:
-                                print(f" Converted Hebrew '{replaceText}' to '{newReplaceText}'")
+                                # print(f" Converted Hebrew '{replaceText}' to '{newReplaceText}'")
                                 replaceText = newReplaceText
+                            for char in replaceText:
+                                if 'HEBREW' in unicodedata.name(char):
+                                    logging.critical(f"Have some Hebrew left-overs in '{replaceText}'")
+                                    break
                         if 'G' in tags:
                             newReplaceText = transliterate_Greek( replaceText )
                             if newReplaceText != replaceText:
-                                print(f" Converted Greek '{replaceText}' to '{newReplaceText}'")
+                                # print(f" Converted Greek '{replaceText}' to '{newReplaceText}'")
                                 replaceText = newReplaceText
+                            for char in replaceText:
+                                if 'GREEK' in unicodedata.name(char):
+                                    logging.critical(f"Have some Greek left-overs in '{replaceText}'")
+                                    break
                         state.commandTables[name].append( EditCommand( tags,
                                 list(fields[1].split(',')) if fields[1] else [], list(fields[2].split(',')) if fields[2] else [],
                                 list(fields[3].split(',')) if fields[3] else [], list(fields[4].split(',')) if fields[4] else [],
@@ -231,7 +240,7 @@ def executeEditsOnAllFiles() -> bool:
         vPrint( 'Quiet', debuggingThisModule, f"No files found in input folder: {inputFolder}" )
         return False
     numTables = len( state.commandTables )
-    vPrint( 'Normal', debuggingThisModule, f"\nApplying edits from {numTables} table{'' if numTables==1 else 's'} to {inputCount} file{'' if inputCount==1 else 's'} in {inputFolder}" )
+    vPrint( 'Quiet', debuggingThisModule, f"\nApplying edits from {numTables} table{'' if numTables==1 else 's'} to {inputCount} file{'' if inputCount==1 else 's'} in {inputFolder}" )
 
     outputFolder = os.path.join( state.controlFolderpath, state.controlData['outputFolder'] )
     if state.controlData['createOutputFolder'] == True:
@@ -250,7 +259,7 @@ def executeEditsOnAllFiles() -> bool:
             outputFilename = inputFilename # for now at least
             inputFilepath = os.path.join( inputFolder, inputFilename )
             if os.path.isfile( inputFilepath ):
-                vPrint( 'Normal', debuggingThisModule, f"  Processing {inputFilename}…" )
+                vPrint( 'Info', debuggingThisModule, f"  Processing {inputFilename}…" )
                 with open( inputFilepath, 'rt', encoding='utf-8') as inputFile:
                     inputText = inputFile.read()
                 vPrint( 'Info', debuggingThisModule, f"    Read {len(inputText):,} characters from {inputFilename}" )
@@ -425,7 +434,7 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
             f"    About to {'loop ' if command.tags=='l' else ''}replace {sourceCount} instance{'' if sourceCount==1 else 's'} of {command.searchText!r} with {command.replaceText!r} in {where}" )
         adjustedText = adjustedText.replace( command.searchText, command.replaceText )
         lastCount = adjustedText.count( command.searchText )
-        vPrint( 'Info', debuggingThisModule, f"      Replaced {sourceCount-lastCount} instances of '{command.searchText}' with '{command.replaceText}' {where}" )
+        vPrint( 'Verbose', debuggingThisModule, f"      Replaced {sourceCount-lastCount} instances of '{command.searchText}' with '{command.replaceText}' {where}" )
         if 'l' in command.tags: # for loop -- handles overlapping strings
             while command.searchText in adjustedText: # keep at it
                 adjustedText = adjustedText.replace( command.searchText, command.replaceText )
@@ -469,7 +478,7 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
     while True:
         adjustedText, numReplacements = compiledSearchRegex.subn( myRegexReplaceString, adjustedText )
         if numReplacements:
-            vPrint( 'Info', debuggingThisModule, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' with '{command.replaceText}' {where}" )
+            vPrint( 'Verbose', debuggingThisModule, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' with '{command.replaceText}' {where}" )
         if numReplacements==0 or 'l' not in command.tags: break
 
     return adjustedText

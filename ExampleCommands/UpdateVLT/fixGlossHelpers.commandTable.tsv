@@ -1,29 +1,87 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
-									/a/			\add +a\add*		
-									/an/			\add +an\add*		
-									/the/			\add +the\add*		
-									/The/			\add +The\add*		
+									/a/			\add +a\add*
+									/A/			\add +A\add*
+									/an/			\add +an\add*
+									/An/			\add +An\add*
+									/the/			\add +the\add*
+									/The/			\add +The\add*
 
-									/am/			am_		
-									/are/			are_		
-									/be/			be_		
-									/being/			being_		
-									/has/			has_		
-									/is/			is_		
-									/is_being/			is_being_		
-									/may/			may_		
-									/may_be/			may_be_		
-									/was/			was_		
-									/were/			were_		
-									/will_be/			will_be_		
-									/had/			had_		
-									/have/			have_		
-									/having/			having_		
-									/having_been/			having_been_		
+									/am/ 			am_
+									/am/			am_
+									/am_being/ 			am_being_
+									/am_being/			am_being_
+									/are/ 			are_
+									/are/			are_
+									/Are/ 			Are_
+									/Are/			Are_
+									/are_being/ 			are_being_
+									/are_being/			are_being_
+									/be/ 			be_
+									/be/			be_
+									/be_being/ 			be_being_
+									/be_being/			be_being_
+									/Be_being/ 			Be_being_
+									/Be_being/			Be_being_
+									/being/ 			being_
+									/being/			being_
+									/going_to/ 			going_to_
+									/going_to/			going_to_
+									/had/ 			had_
+									/had/			had_
+									/has/ 			has_
+									/has/			has_
+									/has_been/ 			has_been_
+									/has_been/			has_been_
+									/have/ 			have_
+									/have/			have_
+									/having/ 			having_
+									/having/			having_
+									/having_been/ 			having_been_
+									/having_been/			having_been_
+									/Having_been/ 			Having_been_
+									/Having_been/			Having_been_
+									/is/ 			is_
+									/is/			is_
+									/is_being/ 			is_being_
+									/is_being/			is_being_
+									/let/ 			let_
+									/let/			let_
+									/may/ 			may_
+									/may/			may_
+									/may_be/ 			may_be_
+									/may_be/			may_be_
+									/was/ 			was_
+									/was/			was_
+									/were/ 			were_
+									/were/			were_
+									/were_being/ 			were_being_
+									/were_being/			were_being_
+									/will_be/ 			will_be_
+									/will_be/			will_be_
+									/will_be_being/ 			will_be_being_
+									/will_be_being/			will_be_being_
 
-									/Be/			Be_		
-									/Is/			Is_		
-									/Having/			Having_		
+									/Be/ 			Be_
+									/Be/			Be_
+									/Is/ 			Is_
+									/Is/			Is_
+									/Having/ 			Having_
+									/Having/			Having_
 
-									/to/			to_		
-									/to_be/			to_be_		
+									/to/ 			to_
+									/to/			to_
+									/To/ 			To_
+									/To/			To_
+									/to_be/ 			to_be_
+									/to_be/			to_be_
+									/to_be_being/ 			to_be_being_
+									/to_be_being/			to_be_being_
+
+# Split (after an insert)
+									 /having_			 having_
+									 /let_			 let_
+#									 /Let_			 Let_		Not sure why this is failing???
+									 /may_			 may_
+									 /to_			 to_
+									 /will_			 will_
+									_be/ 			_be_
