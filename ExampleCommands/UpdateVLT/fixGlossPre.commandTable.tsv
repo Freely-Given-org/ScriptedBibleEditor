@@ -1,45 +1,64 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
-									˱about˲ 			about_
-									˱after˲ 			after_
-									˱against˲ 			against_
-									˱around˲ 			around_
-									˱as˲ 			as_
-									˱at˲ 			at_
-									˱before˲ 			before_
-									˱by˲ 			by_
-									˱for˲ 			for_
-									˱For˲ 			For_
-									˱from˲ 			from_
-									˱From˲ 			From_
-									˱in˲ 			in_
-									˱of˲ 			of_
-									˱of˲_			of_
-									˱on˲ 			on_
-									˱On˲ 			On_
-									˱over˲ 			over_
-									˱to˲ 			to_
-									˱To˲ 			To_
-									˱unto˲ 			unto_		Do we really want this?
-									˱with˲ 			with_
+									˱about˲			about
+									˱after˲			after
+#									˱against˲_>			against
+									˱against˲			against
+									˱around˲			around
+									˱as˲			as
+									˱at˲			at
+									˱before˲			before
+									˱by˲			by
+#									˱for˲_>			for
+									˱for˲			for
+									˱For˲			For
+									˱from˲			from
+									˱From˲			From
+									˱in˲			in
+#									˱of˲_>			of
+									˱of˲			of
+									˱Of˲			Of
+#									˱on˲_>			on
+									˱on˲			on
+									˱On˲			On
+#									˱over˲_>			over
+									˱over˲			over
+#									˱to˲_>			to
+									˱to˲			to
+									˱To˲			To
+									˱unto˲			unto		Do we really want this?
+#									˱with˲_>			with
+									˱with˲			with
 
-									˱I˲ 			I_
-									˱he˲ 			he_
-									˱He˲ 			He_
-									˱she˲ 			she_
-									˱She˲ 			She_
-									˱it˲ 			it_
-									˱It˲ 			It_
-									˱you˲ 			you_
-									˱You˲ 			You_
-									˱we˲ 			we_
-									˱We˲ 			We_
-									˱you_all˲ 			you_all_
-									˱You_all˲ 			You_all_
-									˱You_All˲ 			You_all_
-									˱they˲ 			they_
-									˱They˲ 			They_
+#									˱I˲_>			I
+									˱I˲			I
+#									˱he˲_>			he
+									˱he˲			he
+									˱He˲			He
+									˱she˲			she
+									˱She˲			She
+#									˱it˲_>			it
+									˱it˲			it
+									˱It˲			It
+#									˱you˲_>			you
+									˱you˲			you
+									˱You˲			You
+#									˱we˲_>			we
+									˱we˲			we
+									˱We˲			We
+#									˱you_all˲_> not			you_all_have_ not		Why is this failing ?????
+#									˱you_all˲_>			you_all
+									˱you_all˲			you_all
+#									˱You_all˲_> not			You_all_have_ not
+									˱You_all˲			You_all
+									˱You_All˲			You_all
+#									˱they˲_>			they
+									˱they˲			they
+									˱They˲			They
+									˱them˲			them
 
-									˱him˲ 			him_
-									˱her˲ 			her_
+									˱him˲			him
+									˱her˲			her
 
-									˱there˲ 			there_
+									˱there˲			there
+
+									˱Or˲_behold			Behold		Remove added word in Matt 24:26

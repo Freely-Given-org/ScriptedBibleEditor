@@ -6,82 +6,63 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									/the/			\add +the\add*
 									/The/			\add +The\add*
 
-									/am/ 			am_
-									/am/			am_
-									/am_being/ 			am_being_
-									/am_being/			am_being_
-									/are/ 			are_
-									/are/			are_
-									/Are/ 			Are_
-									/Are/			Are_
-									/are_being/ 			are_being_
-									/are_being/			are_being_
-									/be/ 			be_
-									/be/			be_
-									/be_being/ 			be_being_
-									/be_being/			be_being_
-									/Be_being/ 			Be_being_
-									/Be_being/			Be_being_
-									/being/ 			being_
-									/being/			being_
-									/going_to/ 			going_to_
-									/going_to/			going_to_
-									/had/ 			had_
-									/had/			had_
-									/has/ 			has_
-									/has/			has_
-									/has_been/ 			has_been_
-									/has_been/			has_been_
-									/have/ 			have_
-									/have/			have_
-									/having/ 			having_
-									/having/			having_
-									/having_been/ 			having_been_
-									/having_been/			having_been_
-									/Having_been/ 			Having_been_
-									/Having_been/			Having_been_
-									/is/ 			is_
-									/is/			is_
-									/is_being/ 			is_being_
-									/is_being/			is_being_
-									/let/ 			let_
-									/let/			let_
-									/may/ 			may_
-									/may/			may_
-									/may_be/ 			may_be_
-									/may_be/			may_be_
-									/was/ 			was_
-									/was/			was_
-									/were/ 			were_
-									/were/			were_
-									/were_being/ 			were_being_
-									/were_being/			were_being_
-									/will_be/ 			will_be_
-									/will_be/			will_be_
-									/will_be_being/ 			will_be_being_
-									/will_be_being/			will_be_being_
+									/am/			am
+									/am_being/			am_being
+									/are/			are
+									/are_being/			are_being
+									/be/			be
+									/be_being/			be_being
+									/being/			being
+									/going_to/			going_to
+									/had/			had
+									/had_been/			had_been
+									/has/			has
+									/has_been/			has_been
+									/have/			have
+									/having/			having
+									/having_been/			having_been
+									/Having_been/			Having_been
+									/is/			is
+									/is_being/			is_being
+									/let/			let
+									/may/			may
+									/may_be/			may_be
+									/may_have/			may_have
+									/was/			was
+									/were/			were
+									/were_being/			were_being
+									/will_be/			will_be
+									/will_be_being/			will_be_being
 
-									/Be/ 			Be_
-									/Be/			Be_
-									/Is/ 			Is_
-									/Is/			Is_
-									/Having/ 			Having_
-									/Having/			Having_
+									/Are/			Are
+									/Be/			Be
+									/Be_being/			Be_being
+									/Is/			Is
+									/Having/			Having
 
-									/to/ 			to_
-									/to/			to_
-									/To/ 			To_
-									/To/			To_
-									/to_be/ 			to_be_
-									/to_be/			to_be_
-									/to_be_being/ 			to_be_being_
-									/to_be_being/			to_be_being_
+									/to/			to
+									/To/			To
+									/to_be/			to_be
+									/to_be_being/			to_be_being
 
 # Split (after an insert)
+									_/has_			 _has_
 									 /having_			 having_
 									 /let_			 let_
-#									 /Let_			 Let_		Not sure why this is failing???
+									_/let_			 _let_
+									 /Let_			 Let_
 									 /may_			 may_
+									_/may_			 _may_
 									 /to_			 to_
 									 /will_			 will_
-									_be/ 			_be_
+									_/will_			 will_
+
+									_been/_			_been_
+									_being/_			_being_
+									_be/_			_be_
+									_/be_			_be_
+
+# Fix unusual ones
+									/one/			\add ^one\add*		Matt 12:41 one greater
+									/their/			\add ^their\add*		Matt 4:6 their hands
+									/they/			\add ^they\add*		Matt 21:27 they said

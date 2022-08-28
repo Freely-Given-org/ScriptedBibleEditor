@@ -4,8 +4,16 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									Holy			holy
 									God			god
 									Heaven			heaven		Also gets Heavens, Heavenly
+									The Highest			the highest		God
+									Instructors			instructors		Matt 23:10
 									King			king
+									˱of˲_Man			of_man
 									Messiah			messiah
+									Presence			presence
+									, Rabbi			, rabbi
+									Sabbath			sabbath
+									Scripture			scripture		Also gets Scriptures
+									Son			son
 									Spirit			spirit
 
 # These ones change the word also
@@ -16,3 +24,6 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 # Fix bugs
 									On_One_Hand			On_one_hand
 									You_All			You_all
+
+# Recapitalise sentence beginnings
+									? god			? God

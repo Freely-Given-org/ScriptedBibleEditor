@@ -4,6 +4,7 @@ G									Alpheus			Ἀλφαίος
 G									Andrew			Ἀνδρέας
 G									Annas			Ἄννας
 G									Bartholomew			Βαρθολομαῖος
+G									Beelzeboul			Βεελζεβούλ
 G									Caesar			Καῖσαρ
 G									Caiaphas			Καιάφας
 G									Cephas			Κηφᾶς
@@ -21,17 +22,19 @@ wG									Philip			Φίλιππος
 wG									Pilate			Πιλᾶτος
 wG									Pontius			Πόντιος
 wG									Simon			Σίμων
-G									Thaddeus			 Θαδδαῖος
-G									Thomas			 Θωμᾶς
-G									Tiberias			 Τιβερίος
-G									Zacharias			 Ζαχαρίας
-G									Zebedee			 Ζεβεδαῖος
+G									Thaddeus			Θαδδαῖος
+G									Thomas			Θωμᾶς
+G									Tiberias			Τιβερίος
+G									Zacharias			Ζαχαρίας
+G									Zebedee			Ζεβεδαῖος
 
 # Tribes/Groups
-G									Canaanite			 member_of_Κανανίτης
+G									Canaanite			member_of_Κανανίτης
+wG									Gadarenes			Γαδαρηνός
 wG									Galilean			Γαλιλαῖος
 G									Galileans			Γαλιλαῖος
 G									Magdalene			from_Μαγδαλά
+G									Nazarean			Ναζαρηνός
 
 # Places
 G									Bethany			Βηθανία
@@ -39,8 +42,10 @@ G									Bethlehem			Βηθλεέμ
 G									Bethsaida			Βηθσαϊδά
 wG									Cana			Κανὰ
 G									Capernaum			Καφαρναοὺμ
+G									Chorazin			Χοραζίν
 G									Decapolis			Δεκάπολις
 G									Galilee			Γαλιλαία
+G									Gerasenes			Γερασηνῶν
 G									Joppa			Ἰόππῃ
 G									Judea			Ἰουδαία
 G									Nazareth			Ναζαρέτ

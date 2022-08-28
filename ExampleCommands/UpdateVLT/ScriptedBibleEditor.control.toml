@@ -16,8 +16,9 @@ inputFolder = "../../TestFiles/modified_source_VLT_USFM/"
 inputFilenameTemplate = "BBB_gloss.usfm"
 
 outputFolder = "../../TestFiles/edited_VLT_USFM/"
+outputFilenameTemplate = "OET-LV_BBB.usfm"
+clearOutputFolder = true # Removes the folder and recreates it if createOutputFolder is true (else deletes all files in the folder)
 createOutputFolder = true
-clearOutpuFolder = true
 
 applyOrder = "AllTablesFirst"
 
@@ -25,6 +26,7 @@ applyOrder = "AllTablesFirst"
 [commandTables]
 wordingAdjustments = "wordingAdjustments.commandTable.tsv"
 adjustCapitalisation = "adjustCapitalisation.commandTable.tsv"
+adjustPunctuation = "adjustPunctuation.commandTable.tsv"
 changeFromUSSpelling = "changeFromUSSpelling.commandTable.tsv"
 restoreOTNames = "OTNames.commandTable.tsv"
 restoreNTNames = "NTNames.commandTable.tsv"
@@ -32,5 +34,4 @@ fixGlossPre = "fixGlossPre.commandTable.tsv"
 fixGlossHelpers = "fixGlossHelpers.commandTable.tsv"
 fixGlossPost = "fixGlossPost.commandTable.tsv"
 cleanupVLT = "cleanupVLT.commandTable.tsv"
-adjustPunctuation = "adjustPunctuation.commandTable.tsv"
 #removeAdds = "removeAdds.commandTable.tsv"

@@ -31,6 +31,7 @@ from gettext import gettext as _
 from typing import Dict, List, NamedTuple, Tuple, Optional
 from pathlib import Path
 import os
+import shutil
 import toml
 import logging
 from datetime import datetime
@@ -45,10 +46,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2022-08-25' # by RJH
+LAST_MODIFIED_DATE = '2022-08-28' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.08'
+PROGRAM_VERSION = '0.10'
 programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 debuggingThisModule = False
@@ -111,8 +112,8 @@ def main() -> None:
     global state
     state = State()
 
-    load_transliteration_table('Hebrew')
-    load_transliteration_table('Greek')
+    load_transliteration_table( 'Hebrew' )
+    load_transliteration_table( 'Greek' )
 
     if controlFilepath := findControlFile():
         if loadControlFile( controlFilepath ):
@@ -243,6 +244,12 @@ def executeEditsOnAllFiles() -> bool:
     vPrint( 'Quiet', debuggingThisModule, f"\nApplying edits from {numTables} table{'' if numTables==1 else 's'} to {inputCount} file{'' if inputCount==1 else 's'} in {inputFolder}" )
 
     outputFolder = os.path.join( state.controlFolderpath, state.controlData['outputFolder'] )
+    if state.controlData['clearOutputFolder'] == True:
+        if state.controlData['createOutputFolder'] == True:
+            shutil.rmtree( outputFolder ) # This removes the actual folder (and contents) and a new empty folder will then be created below
+        else: # Remove the individual files (but we don't remove any subfolders)
+            for file in os.scandir( outputFolder ):
+                os.unlink( file.path )
     if state.controlData['createOutputFolder'] == True:
         if not os.path.isdir( outputFolder ):
             os.makedirs( outputFolder )
@@ -256,7 +263,11 @@ def executeEditsOnAllFiles() -> bool:
             UUU = BibleOrgSysGlobals.loadedBibleBooksCodes.getUSFMAbbreviation( BBB ) or ''
             inputFilename = state.controlData['inputFilenameTemplate'] \
                                     .replace( 'BBB', BBB ).replace( 'UUU', UUU.upper() )
-            outputFilename = inputFilename # for now at least
+            try:
+                outputFilename = state.controlData['outputFilenameTemplate'] \
+                                    .replace( 'BBB', BBB ).replace( 'UUU', UUU.upper() )
+            except KeyError:
+                outputFilename = inputFilename
             inputFilepath = os.path.join( inputFolder, inputFilename )
             if os.path.isfile( inputFilepath ):
                 vPrint( 'Info', debuggingThisModule, f"  Processing {inputFilename}…" )
@@ -466,8 +477,8 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
     if command.preText:
         myRegexSearchString = f'({command.preText}){myRegexSearchString}'
         myRegexReplaceString = f'\\1{myRegexReplaceString}'
-    elif 'w' in command.tags:
-        myRegexSearchString = f'\\b{myRegexSearchString}'
+    elif 'w' in command.tags: # search after a word break -- matches after \b or after _
+        myRegexSearchString = f'\\b{myRegexSearchString}|(?<=_){myRegexSearchString}'
     if command.postText:
         myRegexSearchString = f'{myRegexSearchString}({command.postText})'
         myRegexReplaceString = f'{myRegexReplaceString}\\3'
