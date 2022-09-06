@@ -2,10 +2,11 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									baptize			immerse		
 									baptizing			immersing		
 									baptism			immersion		
-									magi			wise_men		
-									talent			(silver)_talent		
+w									magi			wise_men		
+									talent			\add silver_\add*talent		Also gets the plural
 									wrath			severe_anger		
 
+w									O			Oh		
 									Pharisees			Farisaios_sect		
 									Pharisee			Farisaios_sect_member		
 									Sadducees			Saddoukaios_sect		

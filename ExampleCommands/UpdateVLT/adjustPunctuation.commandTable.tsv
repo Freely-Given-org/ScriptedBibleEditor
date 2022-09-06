@@ -1,6 +1,9 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
 #l									  			 	removeDoubleSpaces	Remove double spaces in entire file
 
+									!			. 	replaceExclamationMark	Replace interpretive exclamation mark with period
+									?			. 	replaceQuestionMark	Replace interpretive question mark with period
+
 									, “			: 	replaceDoubleOpenQuote	Replace open quote with colon
 									”				removeDoubleCloseQuote	Remove close quote
 									, ‘			: 	replaceSingleOpenQuote	Replace open quote with colon
@@ -9,6 +12,6 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 				rem					“				removeDoubleOpenQuote	Remove any remaining double open quotes
 				rem					‘				removeSingleOpenQuote	Remove any remaining single open quotes
 
-				rem					¶				removePilcrow	Remove any paragraph markers
+				rem					¶				removePilcrow	Remove any interpretive paragraph markers
 
 l									  			 	removeDoubleSpaces	Remove double spaces in entire file

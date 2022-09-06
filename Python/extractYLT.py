@@ -39,10 +39,10 @@ import BibleOrgSysGlobals
 from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
 
 
-LAST_MODIFIED_DATE = '2022-07-14' # by RJH
+LAST_MODIFIED_DATE = '2022-09-01' # by RJH
 SHORT_PROGRAM_NAME = "extractYLT"
 PROGRAM_NAME = "Extract YLT USFM files"
-PROGRAM_VERSION = '1.00'
+PROGRAM_VERSION = '1.02'
 programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 debuggingThisModule = True
@@ -89,8 +89,8 @@ BOS_BOOK_ID_MAP = {
             26: 'EZK', 27: 'DAN', 28: 'HOS', 29: 'JOL', 30: 'AMO', 31: 'OBA',
             32: 'JNA', 33: 'MIC', 34: 'NAH', 35: 'HAB', 36: 'ZEP', 37: 'HAG', 38: 'ZEC', 39: 'MAL',
             40: 'MAT', 41: 'MRK', 42: 'LUK', 43: 'JHN', 44: 'ACT',
-            45: 'ROM', 46: 'CO1', 47: 'CO2', 48: 'GAL', 49: 'EPH', 50: 'PHP', 51: 'COL', 52: 'TH1', 53: 'TH2', 54: '1TI', 55: '2TI', 56: 'TIT', 57: 'PHM',
-            58: 'HEB', 59: 'JAS', 60: 'PE1', 61: 'PE2', 62: 'JN1', 63: 'JN2', 64: 'JN3', 65: 'JDE', 66: 'REV'}
+            45: 'ROM', 46: 'CO1', 47: 'CO2', 48: 'GAL', 49: 'EPH', 50: 'PHP', 51: 'COL', 52: 'TH1', 53: 'TH2', 54: 'TI1', 55: 'TI2', 56: 'TIT', 57: 'PHM',
+            58: 'HEB', 59: 'JAM', 60: 'PE1', 61: 'PE2', 62: 'JN1', 63: 'JN2', 64: 'JN3', 65: 'JDE', 66: 'REV'}
 assert len(BOS_BOOK_ID_MAP) == 66
 NEWLINE = '\n'
 
@@ -186,7 +186,7 @@ def export_usfm() -> bool:
 \\toc1 {bookName}
 \\toc2 {bookName}
 \\toc3 {bookName}
-\\mt {bookName}"""
+\\mt1 {bookName}"""
 
         if chapterNumber != last_chapterNumber:
             usfm_text = f'{usfm_text}\n\\c {chapterNumber}'
@@ -204,7 +204,7 @@ def export_usfm() -> bool:
             output_file.write(f"{usfm_text}\n")
         numFilesWritten += 1
 
-    vPrint( 'Quiet', debuggingThisModule, f"  Wrote {numFilesWritten} files.\n")
+    vPrint( 'Quiet', debuggingThisModule, f"  Wrote {numFilesWritten} files to {YLT_USFM_OUTPUT_FOLDERPATH}.\n")
     return True
 # end of extractYLT.export_usfm
 

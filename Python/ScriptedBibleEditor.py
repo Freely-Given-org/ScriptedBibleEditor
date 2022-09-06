@@ -46,10 +46,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2022-08-28' # by RJH
+LAST_MODIFIED_DATE = '2022-09-02' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.10'
+PROGRAM_VERSION = '0.11'
 programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 debuggingThisModule = False
@@ -429,11 +429,12 @@ def splitUSFMMarkerFromText( line:str ) -> Tuple[Optional[str],str]:
 # end if ScriptedBibleEditor.splitUSFMMarkerFromText
 
 
+STANDARD_DISTANCE = 2500 # 3JN USFM is about 2,300 chars, LUK is about 175,000 chars, MAT 1 is about 3,500 chars.
 def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> str:
     """
     Assumes we're in the right field.
 
-    Checks previous and following text as necessary.
+    Loops or delays as necessary.
     """
     fnPrint( debuggingThisModule, f"executeEditChunkCommand( {where}, {len(inputText)}, {command} )" )
     assert not command.preText and not command.postText and 'w' not in command.tags
@@ -443,20 +444,65 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
     if sourceCount > 0:
         vPrint( 'Verbose', debuggingThisModule,
             f"    About to {'loop ' if command.tags=='l' else ''}replace {sourceCount} instance{'' if sourceCount==1 else 's'} of {command.searchText!r} with {command.replaceText!r} in {where}" )
-        adjustedText = adjustedText.replace( command.searchText, command.replaceText )
-        lastCount = adjustedText.count( command.searchText )
-        vPrint( 'Verbose', debuggingThisModule, f"      Replaced {sourceCount-lastCount} instances of '{command.searchText}' with '{command.replaceText}' {where}" )
-        if 'l' in command.tags: # for loop -- handles overlapping strings
-            while command.searchText in adjustedText: # keep at it
-                adjustedText = adjustedText.replace( command.searchText, command.replaceText )
-                newCount = adjustedText.count( command.searchText )
-                if newCount >= lastCount: # Could be in an endless loop
-                    logging.critical( f"ABORTED endless loop replacing '{command.searchText}' with '{command.replaceText}'")
-                    break
-                lastCount = newCount
+        if 'd' in command.tags and sourceCount>1 and len(adjustedText) > STANDARD_DISTANCE:
+            # 'd' is for distance, and usually used for names
+            assert 'l' not in command.tags
+            assert '/' in command.replaceText
+            shortReplaceText = command.replaceText.split('/')[0]
+            dPrint( 'Info', debuggingThisModule, f"Have a distanced replace on {where} text ({len(adjustedText):,} chars) with {sourceCount:,} '{command.searchText}' -> '{shortReplaceText}' from '{command.replaceText}'" )
+            startIndex = 0
+            indexes = []
+            while True:
+                index = adjustedText.find( command.searchText, startIndex)
+                if index == -1: break
+                indexes.append( index )
+                startIndex = index + len( command.searchText )
+            assert len(indexes) == sourceCount
+            dPrint( 'Verbose', debuggingThisModule, f"  Indexes are {indexes}" )
+            dPrint( 'Info', debuggingThisModule, f"  Distances are {[indexes[j+1]-indexes[j] for j in range(sourceCount-1)]}" )
+            adjustedText = adjustedText.replace( command.searchText, command.replaceText, 1 ) # Replace first instance
+            searchLength = len( command.searchText )
+            lastFullReplaceIndex = indexes[0]
+            numFullReplacesDone, numShortReplacesDone = 1, 0
+            offset = len(command.replaceText) - len(command.searchText)
+            for jj in range(1, sourceCount):
+                index = indexes[jj]
+                adjustedIndex = index + offset
+                dPrint( 'Verbose', debuggingThisModule, f"    {jj=} {index=} {offset=} {adjustedIndex=} {numFullReplacesDone=} {numShortReplacesDone=}" )
+                assert adjustedText[adjustedIndex:].startswith( command.searchText )
+                distance = index - lastFullReplaceIndex
+                if distance >= STANDARD_DISTANCE: # then it's time to do another full replace
+                    dPrint( 'Verbose', debuggingThisModule, f"      Doing FULL replace for '{command.searchText}'" )
+                    adjustedText = f'{adjustedText[:adjustedIndex]}{command.replaceText}{adjustedText[adjustedIndex+searchLength:]}'
+                    offset += len(command.replaceText) - len(command.searchText)
+                    lastFullReplaceIndex = index
+                    numFullReplacesDone += 1
+                else:
+                    dPrint( 'Verbose', debuggingThisModule, f"      Doing SHORT replace for '{command.searchText}'" )
+                    adjustedText = f'{adjustedText[:adjustedIndex]}{shortReplaceText}{adjustedText[adjustedIndex+searchLength:]}'
+                    offset += len(shortReplaceText) - len(command.searchText)
+                    numShortReplacesDone += 1
+            dPrint( 'Normal', debuggingThisModule, f"  Did {numFullReplacesDone:,} full replaces and {numShortReplacesDone:,} short replaces of '{command.searchText}'" )
+            assert numFullReplacesDone + numShortReplacesDone == sourceCount
+            # if command.searchText=='Jesus': halt
+        else: # no 'd' (or text chunk is too short anyway) so we're just normal
+            adjustedText = adjustedText.replace( command.searchText, command.replaceText )
+            lastCount = adjustedText.count( command.searchText )
+            vPrint( 'Verbose', debuggingThisModule, f"      Replaced {sourceCount-lastCount} instances of '{command.searchText}' with '{command.replaceText}' {where}" )
+            if 'l' in command.tags: # for loop -- handles overlapping strings
+                while command.searchText in adjustedText: # keep at it
+                    adjustedText = adjustedText.replace( command.searchText, command.replaceText )
+                    newCount = adjustedText.count( command.searchText )
+                    if newCount >= lastCount: # Could be in an endless loop
+                        logging.critical( f"ABORTED endless loop replacing '{command.searchText}' with '{command.replaceText}'")
+                        break
+                    lastCount = newCount
     else:
         vPrint( 'Verbose', debuggingThisModule, f"    No instances of {command.searchText!r} in {where}!" )
 
+    # if 'd' in command.tags and sourceCount>1 and len(adjustedText) > STANDARD_DISTANCE and command.searchText=='Jesus':
+    #     # print(adjustedText)
+    #     halt
     return adjustedText
 # end of ScriptedBibleEditor.executeEditChunkCommand
 
@@ -475,20 +521,31 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
     myRegexSearchString = f'({command.searchText})'
     myRegexReplaceString = command.replaceText
     if command.preText:
-        myRegexSearchString = f'({command.preText}){myRegexSearchString}'
-        myRegexReplaceString = f'\\1{myRegexReplaceString}'
+        # myRegexSearchString = f'({command.preText}){myRegexSearchString}'
+        # myRegexReplaceString = f'\\1{myRegexReplaceString}'
+        myRegexSearchString = f'(?{command.preText}){myRegexSearchString}'
+        dPrint( 'Quiet', debuggingThisModule, f"Have PRE TEXT '{command.preText}' before '{myRegexSearchString}'" )
     elif 'w' in command.tags: # search after a word break -- matches after \b or after _
         myRegexSearchString = f'\\b{myRegexSearchString}|(?<=_){myRegexSearchString}'
     if command.postText:
-        myRegexSearchString = f'{myRegexSearchString}({command.postText})'
-        myRegexReplaceString = f'{myRegexReplaceString}\\3'
+        # myRegexSearchString = f'{myRegexSearchString}({command.postText})'
+        # myRegexReplaceString = f'{myRegexReplaceString}\\3'
+        myRegexSearchString = f'{myRegexSearchString}(?{command.postText})'
+        dPrint( 'Quiet', debuggingThisModule, f"Have POST TEXT '{command.postText}' after '{myRegexSearchString}'" )
     elif 'w' in command.tags:
-        myRegexSearchString = f'{myRegexSearchString}\\b'
+        if '|(?<=_)' in myRegexSearchString:
+            bits = myRegexSearchString.split( '|(?<=_)' )
+            assert len(bits) == 2
+            bits = [f'{bit}\\b' for bit in bits]
+            myRegexSearchString = '|(?<=_)'.join(bits)
+        else:
+            myRegexSearchString = f'{myRegexSearchString}\\b'
     compiledSearchRegex = re.compile( myRegexSearchString )
 
     while True:
         adjustedText, numReplacements = compiledSearchRegex.subn( myRegexReplaceString, adjustedText )
         if numReplacements:
+            # dPrint( 'Quiet', debuggingThisModule, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' ({myRegexSearchString}) with '{command.replaceText}' ({myRegexReplaceString}) {where}" )
             vPrint( 'Verbose', debuggingThisModule, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' with '{command.replaceText}' {where}" )
         if numReplacements==0 or 'l' not in command.tags: break
 

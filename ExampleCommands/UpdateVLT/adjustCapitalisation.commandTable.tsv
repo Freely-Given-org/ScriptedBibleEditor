@@ -1,8 +1,20 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+									Abyss			abyss		TODO: Not a modern English word
+									Almighty			almighty		TODO: Not a modern English word
+									Alpha			first_letter
+									the Amen			the amen		Rev 3:14
+									the “Amen”			the amen		2 Cor 1:20
 									Anointed			anointed
-									Bread			bread
+									Blood			blood		Field of Blood
+									Bread			bread		Bread of Presence
+									Cherubim			cherubim		Heb 9:5 (plural)
+									Creator			creator		1 Peter 4:19
+									Deity			deity		Col 2:9
 									Father			father
+									Field			field		Field of the Potter
 									God			god
+									called Great			called great		Acts 8:10
+									the Great			the great		Rev 17:4
 									Holy			holy
 									Heaven			heaven		Also gets Heavens, Heavenly
 									The Highest			the highest		God
@@ -10,12 +22,22 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									King			king
 									Lamb			lamb
 									˱of˲_Man			of_man
+									only Master			only master		Jude 4
+									the Master			the master		Rev 6:10
 									Messiah			messiah
+									, Oh 			, oh 		Not at the beginning of a sentence
+									Omega			last_letter
+									Paradise			paradise
 									Passover			passover
+									Pentecost			pentecost
 									Place			place
-									Presence			presence
+									Potter			potter		Field of the Potter
+									the Power			the power		Acts 8:10
+									Preparation			preparation		Day of Preparation
+									Presence			presence		Bread of Presence
 									, Rabbi			, rabbi
 									Sabbath			sabbath
+									Savior			savior
 									Scripture			scripture		Also gets Scriptures
 									Skull			skull
 									Son			son
@@ -23,6 +45,8 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 
 # These ones change the word also
 									Baptist			immerser
+									Christians			followers_of_the_messiah
+									Christian			follower_of_the_messiah
 									Christ			messiah
 									Lord			master
 									Unleavened			non-fermented

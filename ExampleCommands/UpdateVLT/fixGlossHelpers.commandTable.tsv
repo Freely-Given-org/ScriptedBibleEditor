@@ -16,6 +16,7 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									/be_being/			be_being
 									/Be_being/			Be_being
 									/being/			being
+									/Being/			Being
 									/going_to/			going_to
 									/going_to_be/			going_to_be
 									/had/			had
@@ -37,6 +38,9 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									/may_be/			may_be
 									/may_have/			may_have
 									/might/			might
+									/Might/			Might
+									/might_be/			might_be
+									/might_have/			might_have
 									/was/			was
 									/was_being/			was_being
 									/were/			were
@@ -55,7 +59,7 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									 /be_			 be_
 									 /Be_			 Be_
 									 /has_			 has_
-									 _/has_			 _has_
+									_/has_			_has_
 									 /have_			 have_
 									 /having_			 having_
 									 /is_			 is_
@@ -65,6 +69,7 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									 /may_			 may_
 									 /May_			 May_
 									_/may_			 _may_
+									 /might_			 might_
 									 /to_			 to_
 									 /will_			 will_
 									 /Will_			 Will_
@@ -78,6 +83,8 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									_be/_			_be_
 
 # Fix unusual ones
+									/his/			\add ^his\add*		Matt 12:41 his son
+									/my/			\add ^my\add*		Titus 1:4 my_genuine child
 									/one/			\add ^one\add*		Matt 12:41 one greater
 									/their/			\add ^their\add*		Matt 4:6 their hands
 									/they/			\add ^they\add*		Matt 21:27 they said

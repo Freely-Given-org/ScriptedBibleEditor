@@ -45,10 +45,10 @@ import BibleOrgSysGlobals
 from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
 
 
-LAST_MODIFIED_DATE = '2022-08-27' # by RJH
+LAST_MODIFIED_DATE = '2022-09-01' # by RJH
 SHORT_PROGRAM_NAME = "extractVLT"
 PROGRAM_NAME = "Extract VLT USFM files"
-PROGRAM_VERSION = '0.07'
+PROGRAM_VERSION = '0.09'
 programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 debuggingThisModule = True
@@ -74,8 +74,8 @@ USFM_BOOK_ID_MAP = {
     58: 'HEB', 59: 'JAS', 60: '1PE', 61: '2PE', 62: '1JN', 63: '2JN', 64: '3JN', 65: 'JUD', 66: 'REV'}
 BOS_BOOK_ID_MAP = {
     40: 'MAT', 41: 'MRK', 42: 'LUK', 43: 'JHN', 44: 'ACT',
-    45: 'ROM', 46: 'CO1', 47: 'CO2', 48: 'GAL', 49: 'EPH', 50: 'PHP', 51: 'COL', 52: 'TH1', 53: 'TH2', 54: '1TI', 55: '2TI', 56: 'TIT', 57: 'PHM',
-    58: 'HEB', 59: 'JAS', 60: 'PE1', 61: 'PE2', 62: 'JN1', 63: 'JN2', 64: 'JN3', 65: 'JDE', 66: 'REV'}
+    45: 'ROM', 46: 'CO1', 47: 'CO2', 48: 'GAL', 49: 'EPH', 50: 'PHP', 51: 'COL', 52: 'TH1', 53: 'TH2', 54: 'TI1', 55: 'TI2', 56: 'TIT', 57: 'PHM',
+    58: 'HEB', 59: 'JAM', 60: 'PE1', 61: 'PE2', 62: 'JN1', 63: 'JN2', 64: 'JN3', 65: 'JDE', 66: 'REV'}
 BOOK_NAME_MAP = {
     40: 'Matthew',    41: 'Mark',    42: 'Luke',    43: 'John',    44: 'Acts',
     45: 'Romans',    46: '1 Corinthians',    47: '2 Corinthians',    48: 'Galatians',    49: 'Ephesians',    50: 'Philippians',    51: 'Colossians',
@@ -215,7 +215,7 @@ def export_usfm_literal_English_gloss() -> bool:
     Also uses the GlossInsert field to adjust word order.
     """
     print("\nExporting USFM plain text literal English files…")
-    last_book_number = 39
+    last_book_number = 39 # Start here coz we only do NT
     last_chapter_number = last_verse_number = last_word_number = 0
     last_verse_id = None
     usfm_text = ""
@@ -256,7 +256,7 @@ def export_usfm_literal_English_gloss() -> bool:
 \\toc1 {BOOK_NAME_MAP[book_number]}
 \\toc2 {BOOK_NAME_MAP[book_number]}
 \\toc3 {book_csv_rows[book_number-1]['eAbbreviation']}
-\\mt {BOOK_NAME_MAP[book_number]}"""
+\\mt1 {BOOK_NAME_MAP[book_number]}"""
             last_book_number = book_number
             last_chapter_number = last_verse_number = last_word_number = 0
         if chapter_number != last_chapter_number:  # we've started a new chapter
