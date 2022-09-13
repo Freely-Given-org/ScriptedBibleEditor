@@ -43,9 +43,9 @@ LAST_MODIFIED_DATE = '2022-09-01' # by RJH
 SHORT_PROGRAM_NAME = "extractYLT"
 PROGRAM_NAME = "Extract YLT USFM files"
 PROGRAM_VERSION = '1.02'
-programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
+PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
-debuggingThisModule = True
+DEBUGGING_THIS_MODULE = True
 
 
 YLT_INPUT_FILENAME = 'ylt.txt'
@@ -99,7 +99,7 @@ NEWLINE = '\n'
 def main() -> None:
     """
     """
-    BibleOrgSysGlobals.introduceProgram( __name__, programNameVersion, LAST_MODIFIED_DATE )
+    BibleOrgSysGlobals.introduceProgram( __name__, PROGRAM_NAME_VERSION, LAST_MODIFIED_DATE )
 
     if load_YLT_data():
         export_usfm()
@@ -176,11 +176,11 @@ def export_usfm() -> bool:
             USFM_book_code = USFM_BOOK_ID_MAP[bookNumber]
             BBB = BOS_BOOK_ID_MAP[bookNumber]
             last_chapterNumber = None
-            
+
             usfm_text = f"""\\id {USFM_book_code}
 \\usfm 3.0
 \\ide UTF-8
-\\rem USFM file created {datetime.now().strftime('%Y-%m-%d %H:%M')} by {programNameVersion}
+\\rem USFM file created {datetime.now().strftime('%Y-%m-%d %H:%M')} by {PROGRAM_NAME_VERSION}
 \\rem Robert Young's Literal Translation (1862) is now in the public domain
 \\h {bookName}
 \\toc1 {bookName}
@@ -204,7 +204,7 @@ def export_usfm() -> bool:
             output_file.write(f"{usfm_text}\n")
         numFilesWritten += 1
 
-    vPrint( 'Quiet', debuggingThisModule, f"  Wrote {numFilesWritten} files to {YLT_USFM_OUTPUT_FOLDERPATH}.\n")
+    vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"  Wrote {numFilesWritten} files to {YLT_USFM_OUTPUT_FOLDERPATH}.\n")
     return True
 # end of extractYLT.export_usfm
 

@@ -11,6 +11,7 @@ G									Apelles			Ἀπελλῆς
 G									Apollos			Ἀπολλώς
 G									Apphia			Ἀπφία
 G									Aquila			Ἀκύλας
+G									Archelaus			Ἀρχέλαος		Matt 2:22
 G									Archippus			Ἄρχιππος
 G									Aretas			Ἀρέτας
 G									Aristarchus			Ἀρίσταρχος		Col 4:10
@@ -102,12 +103,15 @@ G									Zenas			Ζηνᾶς		Tit 3:13
 G									Canaanite			member_of_Κανανίτης
 G									Corinthians			Κορίνθιος		2 Cor 6:11
 G									Cretans			Κρής		Tit 1:12
+G									Cyrenian			from_Κυρήνη		Mat 27:32
 G									Gadarenes			Γαδαρηνός
 G									Galileans			Γαλιλαῖος
 wG									Galilean			Γαλιλαῖος
 wG									Greek			Ἕλλην
+G									Jews			Ἰουδαίωνs		Matt 2:2 NOT REALLY HAPPY WITH THIS YET!
 G									Magdalene			from_Μαγδαλά
 G									Nazarean			Ναζαρηνός
+G									Nazarene			Ναζωραῖος		Matt 2:23
 G									Philippians			Φιλιππήσιος		Php 4:15 plus in headings
 G									Scythian			Σκύθης		Col 3:11
 
@@ -118,6 +122,7 @@ G									Asia			Ἀσία
 G									Athens			Ἀθῆναι
 G									Bethany			Βηθανία
 G									Bethlehem			Βηθλεέμ
+G									Bethphage			Βηθφαγή		Matt 21:1
 G									Bethsaida			Βηθσαϊδά
 G									Bithynia			Βιθυνία
 wG									Cana			Κανὰ
@@ -158,6 +163,3 @@ wG									Smyrna			Σμύρνα
 G									Thessalonica			Θεσσαλονίκη		2 Tim 4:10
 wG									Thyatira			Θυάτειρα
 wG									Troas			Τρῳάς
-
-# Currency
-G									assarion			ἀσσάριον

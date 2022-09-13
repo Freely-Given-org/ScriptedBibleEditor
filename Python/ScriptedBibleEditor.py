@@ -46,13 +46,14 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2022-09-02' # by RJH
+LAST_MODIFIED_DATE = '2022-09-13' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.11'
-programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
+PROGRAM_VERSION = '0.12'
+PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
-debuggingThisModule = False
+DEBUGGING_THIS_MODULE = False
+LEAVE_REPLACEMENT_INDICATORS = True # Leaves indicators in the output to show where replacements were done
 
 
 # TODO: Need to allow parameters to be specified on the command line
@@ -96,7 +97,7 @@ class State:
         """
         self.controlData = None
 
-        # if debuggingThisModule: # setup test state
+        # if DEBUGGING_THIS_MODULE: # setup test state
         #     self.commandTableFilepath = Path( '../TestFiles/editCommandTable.tsv' )
         #     if not self.commandTableFilepath.exists():
         #         self.commandTableFilepath = Path( 'TestFiles/editCommandTable.tsv' )
@@ -107,10 +108,12 @@ state = None
 def main() -> None:
     """
     """
-    BibleOrgSysGlobals.introduceProgram( __name__, programNameVersion, LAST_MODIFIED_DATE )
+    BibleOrgSysGlobals.introduceProgram( __name__, PROGRAM_NAME_VERSION, LAST_MODIFIED_DATE )
 
     global state
     state = State()
+    if LEAVE_REPLACEMENT_INDICATORS:
+        vPrint( 'Quiet', DEBUGGING_THIS_MODULE, "LEAVE_REPLACEMENT_INDICATORS flag is enabled! (Maybe affect consecutive replacements)" )
 
     load_transliteration_table( 'Hebrew' )
     load_transliteration_table( 'Greek' )
@@ -119,15 +122,15 @@ def main() -> None:
         if loadControlFile( controlFilepath ):
             if loadCommandTables():
                 executeEditsOnAllFiles()
-            else: vPrint( 'Quiet', debuggingThisModule, "No command tables found!\n" )
-    else: vPrint( 'Quiet', debuggingThisModule, "No control file found!\n" )
+            else: vPrint( 'Quiet', DEBUGGING_THIS_MODULE, "No command tables found!\n" )
+    else: vPrint( 'Quiet', DEBUGGING_THIS_MODULE, "No control file found!\n" )
 # end of ScriptedBibleEditor.main
 
 
 def findControlFile():
     """
     """
-    fnPrint( debuggingThisModule, "findControlFile()")
+    fnPrint( DEBUGGING_THIS_MODULE, "findControlFile()")
 
     searchPaths = [DEFAULT_CONTROL_FILE_NAME,]
     try:
@@ -140,23 +143,23 @@ def findControlFile():
         if os.path.isfile(filepath):
             return filepath
 
-    vPrint( 'Quiet', debuggingThisModule, f"No control file found in {searchPaths}." )
+    vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"No control file found in {searchPaths}." )
 # end of ScriptedBibleEditor.findControlFile
 
 
 def loadControlFile( filepath ) -> bool:
     """
     """
-    fnPrint( debuggingThisModule, f"loadControlFile( {filepath} )")
+    fnPrint( DEBUGGING_THIS_MODULE, f"loadControlFile( {filepath} )")
 
     state.controlFolderpath = os.path.dirname( filepath )
-    vPrint( 'Normal', debuggingThisModule, f"Loading control file: {filepath}…" )
+    vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"Loading control file: {filepath}…" )
     with open(filepath, 'rt', encoding='utf=8') as controlFile:
         state.controlData = toml.load( controlFile )
         displayTitle = f"'{state.controlData['title']}'" \
                         if 'title' in state.controlData and state.controlData['title'] \
                         else "control file"
-        vPrint( 'Quiet', debuggingThisModule, f"  Loaded {len(state.controlData)} parameter{'' if len(state.controlData)== 1 else 's'} from {displayTitle}." )
+        vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"  Loaded {len(state.controlData)} parameter{'' if len(state.controlData)== 1 else 's'} from {displayTitle}." )
         return len(state.controlData) > 0
     return False
 # end of ScriptedBibleEditor.loadControlFile
@@ -165,13 +168,13 @@ def loadControlFile( filepath ) -> bool:
 def loadCommandTables() -> bool:
     """
     """
-    fnPrint( debuggingThisModule, "loadCommandTables()")
+    fnPrint( DEBUGGING_THIS_MODULE, "loadCommandTables()")
     if 'commandTables' in state.controlData:
         state.commandTables = {}
         for name, givenFilepath in state.controlData['commandTables'].items():
             completeFilepath = os.path.join( state.controlFolderpath, givenFilepath )
             if os.path.isfile(completeFilepath):
-                vPrint( 'Info', debuggingThisModule, f"  Loading command table file: {completeFilepath}…" )
+                vPrint( 'Info', DEBUGGING_THIS_MODULE, f"  Loading command table file: {completeFilepath}…" )
                 assert name not in state.commandTables
                 state.commandTables[name] = []
                 with open( completeFilepath, 'rt', encoding='utf-8' ) as commandTableFile:
@@ -195,7 +198,7 @@ def loadCommandTables() -> bool:
                             newReplaceText = transliterate_Hebrew( replaceText, searchText[0].isupper() )
                             if newReplaceText != replaceText:
                                 # print(f" Converted Hebrew '{replaceText}' to '{newReplaceText}'")
-                                replaceText = newReplaceText
+                                replaceText = f'H‹{newReplaceText}›H' if LEAVE_REPLACEMENT_INDICATORS else newReplaceText
                             for char in replaceText:
                                 if 'HEBREW' in unicodedata.name(char):
                                     logging.critical(f"Have some Hebrew left-overs in '{replaceText}'")
@@ -204,7 +207,7 @@ def loadCommandTables() -> bool:
                             newReplaceText = transliterate_Greek( replaceText )
                             if newReplaceText != replaceText:
                                 # print(f" Converted Greek '{replaceText}' to '{newReplaceText}'")
-                                replaceText = newReplaceText
+                                replaceText = f'G‹{newReplaceText}›G' if LEAVE_REPLACEMENT_INDICATORS else newReplaceText
                             for char in replaceText:
                                 if 'GREEK' in unicodedata.name(char):
                                     logging.critical(f"Have some Greek left-overs in '{replaceText}'")
@@ -213,9 +216,10 @@ def loadCommandTables() -> bool:
                                 list(fields[1].split(',')) if fields[1] else [], list(fields[2].split(',')) if fields[2] else [],
                                 list(fields[3].split(',')) if fields[3] else [], list(fields[4].split(',')) if fields[4] else [],
                                 list(fields[5].split(',')) if fields[5] else [], list(fields[6].split(',')) if fields[6] else [],
-                                fields[7], fields[8], searchText, fields[10], fields[11], replaceText, fields[13], fields[14] ) )
-                vPrint( 'Normal', debuggingThisModule, f"    Loaded {len(state.commandTables[name])} command{'' if len(state.commandTables[name])==1 else 's'} for '{name}'." )
-            else: vPrint( 'Normal', debuggingThisModule, f"      '{completeFilepath}' is not a file!" )
+                                fields[7], fields[8], searchText, fields[10], fields[11],
+                                f'R‹{replaceText}›R' if LEAVE_REPLACEMENT_INDICATORS and BibleOrgSysGlobals.verbosityLevel>2 else replaceText, fields[13], fields[14] ) )
+                vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"    Loaded {len(state.commandTables[name])} command{'' if len(state.commandTables[name])==1 else 's'} for '{name}'." )
+            else: vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"      '{completeFilepath}' is not a file!" )
         return True
     else:
         vPrint("No command tables available to load")
@@ -227,7 +231,7 @@ def executeEditsOnAllFiles() -> bool:
     """
     Returns a success flag.
     """
-    fnPrint( debuggingThisModule, "executeEditsOnAllFiles()" )
+    fnPrint( DEBUGGING_THIS_MODULE, "executeEditsOnAllFiles()" )
 
     inputFolder = os.path.join( state.controlFolderpath, state.controlData['inputFolder'] )
     if not os.path.isdir(inputFolder):
@@ -238,10 +242,10 @@ def executeEditsOnAllFiles() -> bool:
         if os.path.isfile(os.path.join(inputFolder, someName)):
             inputCount += 1
     if inputCount < 1:
-        vPrint( 'Quiet', debuggingThisModule, f"No files found in input folder: {inputFolder}" )
+        vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"No files found in input folder: {inputFolder}" )
         return False
     numTables = len( state.commandTables )
-    vPrint( 'Quiet', debuggingThisModule, f"\nApplying edits from {numTables} table{'' if numTables==1 else 's'} to {inputCount} file{'' if inputCount==1 else 's'} in {inputFolder}" )
+    vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"\nApplying edits from {numTables} table{'' if numTables==1 else 's'} to {inputCount} file{'' if inputCount==1 else 's'} in {inputFolder}" )
 
     outputFolder = os.path.join( state.controlFolderpath, state.controlData['outputFolder'] )
     if state.controlData['clearOutputFolder'] == True:
@@ -270,17 +274,17 @@ def executeEditsOnAllFiles() -> bool:
                 outputFilename = inputFilename
             inputFilepath = os.path.join( inputFolder, inputFilename )
             if os.path.isfile( inputFilepath ):
-                vPrint( 'Info', debuggingThisModule, f"  Processing {inputFilename}…" )
+                vPrint( 'Info', DEBUGGING_THIS_MODULE, f"  Processing {inputFilename}…" )
                 with open( inputFilepath, 'rt', encoding='utf-8') as inputFile:
                     inputText = inputFile.read()
-                vPrint( 'Info', debuggingThisModule, f"    Read {len(inputText):,} characters from {inputFilename}" )
+                vPrint( 'Info', DEBUGGING_THIS_MODULE, f"    Read {len(inputText):,} characters from {inputFilename}" )
                 appliedText = executeEdits( BBB, inputText, state.commandTables )
                 if appliedText != inputText: # Make a backup before overwriting the input file
-                    appliedText = appliedText.replace( '\n\\h ', f"\n\\rem USFM file edited {datetime.now().strftime('%Y-%m-%d %H:%M')} by {programNameVersion}\n\\h " )
+                    appliedText = appliedText.replace( '\n\\h ', f"\n\\rem USFM file edited {datetime.now().strftime('%Y-%m-%d %H:%M')} by {PROGRAM_NAME_VERSION}\n\\h " )
                     outputFilepath = os.path.join( outputFolder, outputFilename )
                     if outputFilepath == inputFilename:
                         BibleOrgSysGlobals.backupAnyExistingFile( inputFilename, numBackups=3 )
-                    vPrint( 'Normal', debuggingThisModule, f"    Writing {len(appliedText):,} characters (was {len(inputText):,}) to {outputFilename}…" )
+                    vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"    Writing {len(appliedText):,} characters (was {len(inputText):,}) to {outputFilename}…" )
                     with open( outputFilepath, 'wt', encoding='utf-8' ) as outputFile:
                         outputFile.write(appliedText)
                 # break # while debugging first file
@@ -295,11 +299,11 @@ def executeEdits( BBB:str, inputText:str, commandTables ) -> str:
     """
     Returns a modified string.
     """
-    fnPrint( debuggingThisModule, f"executeEdits( {len(inputText)} )" )
+    fnPrint( DEBUGGING_THIS_MODULE, f"executeEdits( {len(inputText)} )" )
     appliedText = inputText
 
     for commandTableName, commands in commandTables.items():
-        vPrint( 'Info', debuggingThisModule, f"    Applying {commandTableName}…" )
+        vPrint( 'Info', DEBUGGING_THIS_MODULE, f"    Applying {commandTableName}…" )
         appliedText = executeEditCommands( BBB, appliedText, commands )
 
     return appliedText
@@ -310,7 +314,7 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
     """
     Returns the adjusted text with the command(s) applied
     """
-    fnPrint( debuggingThisModule, f"executeEditCommands( {BBB}, {len(inputText)}, {len(commands)} )" )
+    fnPrint( DEBUGGING_THIS_MODULE, f"executeEditCommands( {BBB}, {len(inputText)}, {len(commands)} )" )
     adjustedText = inputText
 
     for command in commands:
@@ -318,7 +322,7 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
             assert BBB not in command.eBooks
         if BBB in command.eBooks:
             assert BBB not in command.iBooks
-            vPrint( 'Verbose', debuggingThisModule, f"    Skipping excluded '{BBB}' book…" )
+            vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping excluded '{BBB}' book…" )
             continue
 
         editFunction = executeRegexEditChunkCommand if 'w' in command.tags or command.preText or command.postText \
@@ -328,7 +332,7 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
             # Then it's easier -- don't care about USFM structure
             adjustedText = editFunction( BBB, adjustedText, command )
         else: # need to parse USFM by line
-            dPrint( 'Verbose', debuggingThisModule, f"Need to parse USFM by line to apply {command}!" )
+            dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"Need to parse USFM by line to apply {command}!" )
             newLines = []
             C, V = '-1', '-1' # So first/id line starts at -1:0
             lineNumber, lastMarker =  0, None
@@ -350,29 +354,29 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
                     if effectiveMarker in command.eMarkers:
                         assert effectiveMarker not in command.iMarkers
                         newLines.append( line )
-                        vPrint( 'Verbose', debuggingThisModule, f"    Skipping excluded '{effectiveMarker}' marker…" )
+                        vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping excluded '{effectiveMarker}' marker…" )
                         continue
                     if command.iMarkers and effectiveMarker not in command.iMarkers:
                         newLines.append( line )
-                        vPrint( 'Verbose', debuggingThisModule, f"    Skipping not included '{effectiveMarker}' marker…" )
+                        vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping not included '{effectiveMarker}' marker…" )
                         halt
                         continue
                 CVRef, BCVRef = f'{C}:{V}', f'{BBB}_{C}:{V}'
                 if CVRef in command.eRefs:
                     assert CVRef not in command.iRefs
                     newLines.append( line )
-                    vPrint( 'Verbose', debuggingThisModule, f"    Skipping excluded '{CVRef}' reference…" )
+                    vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping excluded '{CVRef}' reference…" )
                     halt
                     continue
                 if BCVRef in command.eRefs:
                     assert BCVRef not in command.iRefs
                     newLines.append( line )
-                    vPrint( 'Verbose', debuggingThisModule, f"    Skipping excluded '{BCVRef}' reference…" )
+                    vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping excluded '{BCVRef}' reference…" )
                     halt
                     continue
                 if command.iRefs and CVRef not in command.iRefs and BCVRef not in command.iRefs:
                     newLines.append( line )
-                    vPrint( 'Verbose', debuggingThisModule, f"    Skipping not included '{BCVRef}' reference…" )
+                    vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping not included '{BCVRef}' reference…" )
                     halt
                     continue
                 # If we get here, we need to process the USFM field
@@ -436,20 +440,21 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
 
     Loops or delays as necessary.
     """
-    fnPrint( debuggingThisModule, f"executeEditChunkCommand( {where}, {len(inputText)}, {command} )" )
+    fnPrint( DEBUGGING_THIS_MODULE, f"executeEditChunkCommand( {where}, {len(inputText)}, {command} )" )
     assert not command.preText and not command.postText and 'w' not in command.tags
     adjustedText = inputText
 
     sourceCount = adjustedText.count( command.searchText )
     if sourceCount > 0:
-        vPrint( 'Verbose', debuggingThisModule,
+        vPrint( 'Verbose', DEBUGGING_THIS_MODULE,
             f"    About to {'loop ' if command.tags=='l' else ''}replace {sourceCount} instance{'' if sourceCount==1 else 's'} of {command.searchText!r} with {command.replaceText!r} in {where}" )
         if 'd' in command.tags and sourceCount>1 and len(adjustedText) > STANDARD_DISTANCE:
             # 'd' is for distance, and usually used for names
             assert 'l' not in command.tags
-            assert '/' in command.replaceText
-            shortReplaceText = command.replaceText.split('/')[0]
-            dPrint( 'Info', debuggingThisModule, f"Have a distanced replace on {where} text ({len(adjustedText):,} chars) with {sourceCount:,} '{command.searchText}' -> '{shortReplaceText}' from '{command.replaceText}'" )
+            assert '/' in command.replaceText or '\\add ' in command.replaceText
+            shortReplaceText = command.replaceText.split('/')[0] if '/' in command.replaceText \
+                else re.sub( '\\\\add .+?\\\\add[*]', '', command.replaceText ) # the /add part could be at the beginning, the end, or in the middle
+            dPrint( 'Info', DEBUGGING_THIS_MODULE, f"Have a distanced replace on {where} text ({len(adjustedText):,} chars) with {sourceCount:,} '{command.searchText}' -> '{shortReplaceText}' from '{command.replaceText}'" )
             startIndex = 0
             indexes = []
             while True:
@@ -458,8 +463,8 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
                 indexes.append( index )
                 startIndex = index + len( command.searchText )
             assert len(indexes) == sourceCount
-            dPrint( 'Verbose', debuggingThisModule, f"  Indexes are {indexes}" )
-            dPrint( 'Info', debuggingThisModule, f"  Distances are {[indexes[j+1]-indexes[j] for j in range(sourceCount-1)]}" )
+            dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"  Indexes are {indexes}" )
+            dPrint( 'Info', DEBUGGING_THIS_MODULE, f"  Distances are {[indexes[j+1]-indexes[j] for j in range(sourceCount-1)]}" )
             adjustedText = adjustedText.replace( command.searchText, command.replaceText, 1 ) # Replace first instance
             searchLength = len( command.searchText )
             lastFullReplaceIndex = indexes[0]
@@ -468,27 +473,27 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
             for jj in range(1, sourceCount):
                 index = indexes[jj]
                 adjustedIndex = index + offset
-                dPrint( 'Verbose', debuggingThisModule, f"    {jj=} {index=} {offset=} {adjustedIndex=} {numFullReplacesDone=} {numShortReplacesDone=}" )
+                dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    {jj=} {index=} {offset=} {adjustedIndex=} {numFullReplacesDone=} {numShortReplacesDone=}" )
                 assert adjustedText[adjustedIndex:].startswith( command.searchText )
                 distance = index - lastFullReplaceIndex
                 if distance >= STANDARD_DISTANCE: # then it's time to do another full replace
-                    dPrint( 'Verbose', debuggingThisModule, f"      Doing FULL replace for '{command.searchText}'" )
+                    dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"      Doing FULL replace for '{command.searchText}'" )
                     adjustedText = f'{adjustedText[:adjustedIndex]}{command.replaceText}{adjustedText[adjustedIndex+searchLength:]}'
                     offset += len(command.replaceText) - len(command.searchText)
                     lastFullReplaceIndex = index
                     numFullReplacesDone += 1
                 else:
-                    dPrint( 'Verbose', debuggingThisModule, f"      Doing SHORT replace for '{command.searchText}'" )
+                    dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"      Doing SHORT replace for '{command.searchText}'" )
                     adjustedText = f'{adjustedText[:adjustedIndex]}{shortReplaceText}{adjustedText[adjustedIndex+searchLength:]}'
                     offset += len(shortReplaceText) - len(command.searchText)
                     numShortReplacesDone += 1
-            dPrint( 'Normal', debuggingThisModule, f"  Did {numFullReplacesDone:,} full replaces and {numShortReplacesDone:,} short replaces of '{command.searchText}'" )
+            dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"  Did {numFullReplacesDone:,} full replaces and {numShortReplacesDone:,} short replaces of '{command.searchText}'" )
             assert numFullReplacesDone + numShortReplacesDone == sourceCount
             # if command.searchText=='Jesus': halt
         else: # no 'd' (or text chunk is too short anyway) so we're just normal
             adjustedText = adjustedText.replace( command.searchText, command.replaceText )
             lastCount = adjustedText.count( command.searchText )
-            vPrint( 'Verbose', debuggingThisModule, f"      Replaced {sourceCount-lastCount} instances of '{command.searchText}' with '{command.replaceText}' {where}" )
+            vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"      Replaced {sourceCount-lastCount} instances of '{command.searchText}' with '{command.replaceText}' {where}" )
             if 'l' in command.tags: # for loop -- handles overlapping strings
                 while command.searchText in adjustedText: # keep at it
                     adjustedText = adjustedText.replace( command.searchText, command.replaceText )
@@ -498,7 +503,7 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
                         break
                     lastCount = newCount
     else:
-        vPrint( 'Verbose', debuggingThisModule, f"    No instances of {command.searchText!r} in {where}!" )
+        vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    No instances of {command.searchText!r} in {where}!" )
 
     # if 'd' in command.tags and sourceCount>1 and len(adjustedText) > STANDARD_DISTANCE and command.searchText=='Jesus':
     #     # print(adjustedText)
@@ -515,23 +520,23 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
 
     Checks previous and following text as necessary.
     """
-    fnPrint( debuggingThisModule, f"executeRegexEditChunkCommand( {where}, {len(inputText)}, {command} )" )
+    fnPrint( DEBUGGING_THIS_MODULE, f"executeRegexEditChunkCommand( {where}, {len(inputText)}, {command} )" )
     adjustedText = inputText
 
     myRegexSearchString = f'({command.searchText})'
-    myRegexReplaceString = command.replaceText
+    myRegexReplaceString = f'Rx-{command.replaceText}-Rx' if LEAVE_REPLACEMENT_INDICATORS else command.replaceText
     if command.preText:
         # myRegexSearchString = f'({command.preText}){myRegexSearchString}'
         # myRegexReplaceString = f'\\1{myRegexReplaceString}'
         myRegexSearchString = f'(?{command.preText}){myRegexSearchString}'
-        dPrint( 'Quiet', debuggingThisModule, f"Have PRE TEXT '{command.preText}' before '{myRegexSearchString}'" )
+        dPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"Have PRE TEXT '{command.preText}' before '{myRegexSearchString}'" )
     elif 'w' in command.tags: # search after a word break -- matches after \b or after _
         myRegexSearchString = f'\\b{myRegexSearchString}|(?<=_){myRegexSearchString}'
     if command.postText:
         # myRegexSearchString = f'{myRegexSearchString}({command.postText})'
         # myRegexReplaceString = f'{myRegexReplaceString}\\3'
         myRegexSearchString = f'{myRegexSearchString}(?{command.postText})'
-        dPrint( 'Quiet', debuggingThisModule, f"Have POST TEXT '{command.postText}' after '{myRegexSearchString}'" )
+        dPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"Have POST TEXT '{command.postText}' after '{myRegexSearchString}'" )
     elif 'w' in command.tags:
         if '|(?<=_)' in myRegexSearchString:
             bits = myRegexSearchString.split( '|(?<=_)' )
@@ -545,8 +550,8 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
     while True:
         adjustedText, numReplacements = compiledSearchRegex.subn( myRegexReplaceString, adjustedText )
         if numReplacements:
-            # dPrint( 'Quiet', debuggingThisModule, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' ({myRegexSearchString}) with '{command.replaceText}' ({myRegexReplaceString}) {where}" )
-            vPrint( 'Verbose', debuggingThisModule, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' with '{command.replaceText}' {where}" )
+            # dPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' ({myRegexSearchString}) with '{command.replaceText}' ({myRegexReplaceString}) {where}" )
+            vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' with '{command.replaceText}' {where}" )
         if numReplacements==0 or 'l' not in command.tags: break
 
     return adjustedText

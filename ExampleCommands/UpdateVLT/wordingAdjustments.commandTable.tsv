@@ -1,13 +1,34 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
-									baptize			immerse		
-									baptizing			immersing		
-									baptism			immersion		
-w									magi			wise_men		
-									talent			\add silver_\add*talent		Also gets the plural
-									wrath			severe_anger		
+									baptize			immerse
+									baptizing			immersing
+									baptism			immersion
+									be_cast			be_thrown		Matt 18:8
+									behold			see
+									Behold,			See		Matt 21:4
+									casts			throws		Matt 17:19
+									cast			throw		Matt 17:19
+#									glory			what?????		Matt 16:27 How do we handle this????
+									gnashing			grating		Matt 22:13 or "grinding, biting"? What about "chattering"???
+									Hosanna			Blessed_saviour		Matt 21:9 Lit. "save now"! Can this be improved further?
+									legion			army_division		Matt 26:53 6,100 + 726 = 6,826, also gets the plural
+									loosed			untied/released		Matt 16:19
+									looses			unties/releases		Matt 16:19
+									loose			untie/release		Matt 16:19
+w									magi			wise_men
+									millstone			grinding_stone		Matt 18:6
+dG									talents			τάλαντονs\add _of_silver\add*		Matt 25:25
+dG									talent			τάλαντον\add _of_silver\add*		Matt 25:25
+									tetrarch			quarter_ruler		Matt 14:1
+									wrath			severe_anger
 
-w									O			Oh		
-									Pharisees			Farisaios_sect		
-									Pharisee			Farisaios_sect_member		
-									Sadducees			Saddoukaios_sect		
-									Sadducee			Saddoukaios_sect_member		
+w									O			Oh
+									Hail			Greetings		Matt 26:29
+
+									Pharisees			Farisaios_sect
+									Pharisee			Farisaios_sect_member
+									Sadducees			Saddoukaios_sect
+									Sadducee			Saddoukaios_sect_member
+
+# Currency
+G									assarion			ἀσσάριον
+G									two_drachmas			δίδραχμον		Matt 17:24

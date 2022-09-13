@@ -28,14 +28,15 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									, Oh 			, oh 		Not at the beginning of a sentence
 									Omega			last_letter
 									Paradise			paradise
-									Passover			passover
+d									Passover			passover\add _feast\add*
 									Pentecost			pentecost
 									Place			place
 									Potter			potter		Field of the Potter
 									the Power			the power		Acts 8:10
 									Preparation			preparation		Day of Preparation
 									Presence			presence		Bread of Presence
-									, Rabbi			, rabbi
+									, Rabbi			, my_great\add >_one\add*
+									Rabbi			, My_great\add >_one\add*
 									Sabbath			sabbath
 									Savior			savior
 									Scripture			scripture		Also gets Scriptures

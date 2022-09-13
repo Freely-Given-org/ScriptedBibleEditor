@@ -49,9 +49,9 @@ LAST_MODIFIED_DATE = '2022-09-01' # by RJH
 SHORT_PROGRAM_NAME = "extractVLT"
 PROGRAM_NAME = "Extract VLT USFM files"
 PROGRAM_VERSION = '0.09'
-programNameVersion = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
+PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
-debuggingThisModule = True
+DEBUGGING_THIS_MODULE = True
 
 
 VLT_USFM_OUTPUT_FOLDERPATH = Path( "../TestFiles/modified_source_VLT_USFM/" )
@@ -120,7 +120,7 @@ collation_csv_column_headers = []
 def main() -> None:
     """
     """
-    BibleOrgSysGlobals.introduceProgram( __name__, programNameVersion, LAST_MODIFIED_DATE )
+    BibleOrgSysGlobals.introduceProgram( __name__, PROGRAM_NAME_VERSION, LAST_MODIFIED_DATE )
     global state
     state = State()
 
@@ -250,7 +250,7 @@ def export_usfm_literal_English_gloss() -> bool:
             usfm_text = f"""\\id {USFM_book_code}
 \\usfm 3.0
 \\ide UTF-8
-\\rem USFM file created {datetime.now().strftime('%Y-%m-%d %H:%M')} by {programNameVersion}
+\\rem USFM file created {datetime.now().strftime('%Y-%m-%d %H:%M')} by {PROGRAM_NAME_VERSION}
 \\rem The source table used to create this file is Copyright © 2022 by https://GreekCNTR.org
 \\h {BOOK_NAME_MAP[book_number]}
 \\toc1 {BOOK_NAME_MAP[book_number]}
@@ -524,7 +524,7 @@ def separate_punctuation(given_punctuation:str) -> Tuple[str,str]:
     """
     Take a combination punctuation string and converts it into pre and post punctuation characters.
     """
-    # fnPrint( debuggingThisModule, f"separate_punctuation({given_punctuation})" )
+    # fnPrint( DEBUGGING_THIS_MODULE, f"separate_punctuation({given_punctuation})" )
     pre_punctuation = post_punctuation = ''
     if given_punctuation not in ('.”’”','[[',']]',):
         for char in given_punctuation:
