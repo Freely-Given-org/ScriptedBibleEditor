@@ -1,11 +1,13 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
 # Individuals
 G									Adronicus			Ἀνδρόνικος
+G									Aenon			Αἰνών		John 3:23
 G									Alexander			Ἀλέξανδρος		2 Tim 4:14
 G									Alpheus			Ἀλφαίος
 G									Ampliatus			Ἀμπλίας
 G									Andrew			Ἀνδρέας
 G									Annas			Ἄννας
+wG									Anna			Ἅννα		Luke 2:26
 G									Asyncritus			Ἀσύγκριτος
 G									Apelles			Ἀπελλῆς
 G									Apollos			Ἀπολλώς
@@ -20,6 +22,7 @@ G									Artemis			Ἀρτεμᾶς		Tit 3:12
 G									Barnabas			Βαρνάβας
 G									Barabbas			Βαραββᾶς
 G									Bartholomew			Βαρθολομαῖος
+G									Bartimaeus			Βαρτίμαιος		Mrk 10:46
 G									Beelzeboul			Βεελζεβούλ
 G									Beliar			Βελίαρ		A name for Satan in 2Co 6:15
 G									Caesar			Καῖσαρ
@@ -29,11 +32,14 @@ G									Carpus			Κάρπος		2 Tim 4:13
 G									Cephas			Κηφᾶς
 G									Chloe			Χλόη
 G									Claudia			Κλαυδία		2 Tim 4:21
+G									Cleopas			Κλεοπᾶς		Luke 24:18
 G									Crescens			Κρήσκης		2 Tim 4:10
+G									Cyrenius			Κυρήνιος		Luke 2:2 (sometimes Quirinius)
 G									Demas			Δημᾶς		Col 4:14
 G									Demetrius			Δημήτριος		3 John 12
 G									Didymus			Δίδυμος/[twin]
 G									Diotrephes			Διοτρεφής		3 John 9
+G									Elizabeth			Ἐλισάβετ		Luk 1:5
 G									Epaenetus			Ἐπαίνετος
 G									Epaphras			Ἐπαφρᾶς		Col 1:7,12
 G									Erastus			Ἔραστος		2 Tim 4:20
@@ -46,17 +52,22 @@ wG									Herod			Ἡρῴδης
 G									Herodion			Ἡρῳδίων
 G									Hymeneus			Ὑμέναιος		2 Tim 2:17
 G									Iscariot			Ἰσκαριώτης
+G									Jairus			Ἰάειρος		Mrk 5:22
 G									Jambres			Ἰαμβρῆς		2 Tim 3:8
 G									Jannes			Ἰαννῆς		2 Tim 3:8
+G									Joanna			Ἰωάννα		Luke 24:10
 G				id					John			Ἰωάννης
 G									Julia			Ἰουλία
 G									Junia			Ἰουνιᾶς
 G									Justus			Ἰοῦστος		Col 4:11
+G									Lazarus			Λάζαρος		Luke 16:23
 G									Lebbaios			Λεββαῖος
 G									Linus			Λῖνος		2 Tim 4:21
 G				id					Luke			Λουκᾶς
 G									Lysanias			Λυσανίος
+G									Malchus			Μάλχος		John 18:10
 G				id					Mark			Μάρκος
+G									Martha			Μάρθα		Luke 10:38
 G									Matthew			Ματθαῖος
 G									Narcissus			Νάρκισσος
 G									Nathanael			Ναθαναὴλ
@@ -69,6 +80,7 @@ G									Patrobas			Πατρόβας
 G									Paul			Παῦλος
 G									Persis			Περσίς
 G									Peter			Πέτρος
+G									Phanuel			Φανουήλ		Luke 2:26
 G									Philemon			Φιλήμονι
 G									Philetus			Φίλητος		2 Tim 2:17
 G									Philologus			Φιλόλογος
@@ -81,6 +93,7 @@ G									Prisca			Πρίσκα
 G									Pudens			Πούδης		2 Tim 4:21
 G									Quartus			Κούαρτος
 G									Rufus			Ῥοῦφος
+G									Salome			Σαλώμη		Mrk 15:40, 16:1
 G									Silvanus			Σιλουανός
 wG									Simon			Σίμων
 G									Sosthenes			Σωσθένης
@@ -88,6 +101,7 @@ G									Stachys			Στάχυς
 G									Thaddeus			Θαδδαῖος
 G									Thomas			Θωμᾶς
 G									Tiberias			Τιβερίος
+G									Timeus			Τιμαῖος		Mrk 10:46
 G				id					Timothy			Τιμόθεος
 G				id					Titus			Τίτος
 G									Trophimus			Τρόφιμος		2 Tim 4:20
@@ -95,6 +109,7 @@ G									Tryphena			Τρύφαινα
 G									Tryphosa			Τρυφῶσα
 G									Tychicus			Τυχικός		2 Tim 4:12
 G									Urbanus			Οὐρβανός
+G									Zaccheus			Ζακχαῖος		Luke 19:2
 G									Zacharias			Ζαχαρίας
 G									Zebedee			Ζεβεδαῖος
 G									Zenas			Ζηνᾶς		Tit 3:13
@@ -107,17 +122,24 @@ G									Cyrenian			from_Κυρήνη		Mat 27:32
 G									Gadarenes			Γαδαρηνός
 G									Galileans			Γαλιλαῖος
 wG									Galilean			Γαλιλαῖος
+G									Greeks			Ἕλληνs		John 7:35 (English s at end)
 wG									Greek			Ἕλλην
+G									Herodians			supporters_of_Ἡρῴδης		Mrk 3:6
 G									Jews			Ἰουδαίωνs		Matt 2:2 NOT REALLY HAPPY WITH THIS YET!
 G									Magdalene			from_Μαγδαλά
 G									Nazarean			Ναζαρηνός
 G									Nazarene			Ναζωραῖος		Matt 2:23
 G									Philippians			Φιλιππήσιος		Php 4:15 plus in headings
+G									Romans			Ῥωμαῖος		John 11:48
 G									Scythian			Σκύθης		Col 3:11
+G									Syrian			from_Συρία		Luke 4:27
+G									Syrophoenician			from_Φοινίκη_in_Συρία		Mrk 7:26
 
 # Places
+G									Abilene			Ἀβιληνή		Luke 3:1
 G									Achaia			Ἀχαϊα
 G									Antioch			Ἀντιόχεια		2 Tim 3:11
+G									Arimathea			Ἀριμαθαία		Mrk 15:43
 G									Asia			Ἀσία
 G									Athens			Ἀθῆναι
 G									Bethany			Βηθανία
@@ -135,14 +157,18 @@ wG									Corinth			Κόρινθος
 G									Crete			Κρήτη		Tit 1:5
 G									Dalmatia			Δαλματία		2 Tim 4:10
 G									Decapolis			Δεκάπολις
+G									Emmaus			Ἐμμαούς		Luke 24:13
 G									Ephesus			Ἔφεσος
 G									Euphrates			Εὐφράτης
+G									Gabbatha			Γαββαθᾶ		John 19:13
 wG									Galatia			Γαλατία
 G									Galilee			Γαλιλαία
 G									Gerasenes			Γερασηνῶν
 G									Gethsemane			Γεθσημανῆ
 G									Hades			ᾍδης
 G									Iconium			Ἰκόνιον		2 Tim 3:11
+G									Idumea			Ἰδουμαία		Mrk 3:8
+G									Iturea			Ἰτουραῖος		Luke 3:1
 G									Joppa			Ἰόππῃ
 G									Judea			Ἰουδαία
 G									Laodicea			Λαοδικεία
@@ -150,6 +176,7 @@ G									Lystra			Λύστρα		2 Tim 3:11
 G									Macedonia			Μακεδονία
 G									Magadan			Μαγαδάν
 G									Miletus			Μίλητος		2 Tim 4:20
+G									Nain			Ναΐν		Luke 7:11
 G									Nazareth			Ναζαρέτ
 G									Nicopolis			Νικόπολις		Tit 3:12
 wG									Patmos			Πάτμος
@@ -158,8 +185,12 @@ wG									Philadelphia			Φιλαδέλφεια
 wG									Philippi			Φιλίππου
 wG									Pontus			Πόντος
 wG									Rome			Ῥώμη
+G									Salim			Σαλείμ		John 3:23
 wG									Sardis			Σάρδεις
+G									Siloam			Σιλωάμ		Luke 13:4
 wG									Smyrna			Σμύρνα
+G									Sychar			Συχάρ		John 4:5
 G									Thessalonica			Θεσσαλονίκη		2 Tim 4:10
 wG									Thyatira			Θυάτειρα
+G									Trachonitis			Τραχωνῖτις		Luke 3:1
 wG									Troas			Τρῳάς

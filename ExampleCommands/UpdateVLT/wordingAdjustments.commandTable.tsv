@@ -6,29 +6,53 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									behold			see
 									Behold,			See		Matt 21:4
 									casts			throws		Matt 17:19
+									cast himself			threw himself		John 21:7 (cast can be present or past!)
 									cast			throw		Matt 17:19
+									crucified him			impaled_ him _on_a_stake
+									crucified			impaled_on_a_stake
+									crucify			impale_on_a_stake
+									Crucify him			Impale_ him _on_a_stake
+									Crucify			Impale_on_a_stake
+									disciples			apprentices/followers
+									disciple			apprentice/follower
 #									glory			what?????		Matt 16:27 How do we handle this????
 									gnashing			grating		Matt 22:13 or "grinding, biting"? What about "chattering"???
 									Hosanna			Blessed_saviour		Matt 21:9 Lit. "save now"! Can this be improved further?
 									legion			army_division		Matt 26:53 6,100 + 726 = 6,826, also gets the plural
+									Legion			Many_thousands		Mrk 5:9 as a name
 									loosed			untied/released		Matt 16:19
 									looses			unties/releases		Matt 16:19
 									loose			untie/release		Matt 16:19
 w									magi			wise_men
 									millstone			grinding_stone		Matt 18:6
-dG									talents			τάλαντονs\add _of_silver\add*		Matt 25:25
-dG									talent			τάλαντον\add _of_silver\add*		Matt 25:25
+									praetorium			residence_of_the_governor		John 18:28 πραιτώριον
+									, Rabbi			, my_great_\add >one\add*
+									Rabbi			, My_great_\add >one\add*
+									, “Rabboni,			, “My_teacher,		Mrk 10:51 And the blind man said to_him: Rabboni, that I_may_receive_sight.
+#									, “Rabboni			NOT CHANGED		John 20:16 In_Hebrew: Rabboni (that is_being_called: Teacher).
+									Tabernacle			tent		John 7:2 also works for plural
+dG									talents			τάλαντονs_\add of_silver\add*		Matt 25:25
+dG									talent			τάλαντον_\add of_silver\add*		Matt 25:25
 									tetrarch			quarter_ruler		Matt 14:1
 									wrath			severe_anger
 
 w									O			Oh
 									Hail			Greetings		Matt 26:29
 
-									Pharisees			Farisaios_sect
-									Pharisee			Farisaios_sect_member
-									Sadducees			Saddoukaios_sect
-									Sadducee			Saddoukaios_sect_member
+G									Pharisees			Φαρισαῖος_\add sect\add*		Luke 6:7
+G									Pharisee			Φαρισαῖος_\add sect_member\add*
+G									Sadducees			Σαδδουκαῖος_\add sect\add*		Matt 3:7
+G									Sadducee			Σαδδουκαῖος_\add sect_member\add*
+									Sanhedrin			council		Luke 22:66
+G									Zealot			Φαρισαῖος_ζηλωτής_\add group_member\add*		Luke 6:15
 
 # Currency
-G									assarion			ἀσσάριον
+G									assarion			ἀσσάριον_\add coin\add*		Luke 12:6
 G									two_drachmas			δίδραχμον		Matt 17:24
+G									lepton			λεπτόν_\add coin\add*		Luke 21:2
+wG									mina			\add silver\add*_μνᾶ		Luke 19:13-27
+
+# Weights and measures
+dGH									baths			βάτος/(בַּת)_\add measures\add*		Luke 16:6
+dGH									cors			κόρος/(כֹּר)_\add measures\add*		Luke 16:7
+GH									stadium			στάδιον		Luke 24:13 one eighth of a Roman mile

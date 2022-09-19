@@ -46,10 +46,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2022-09-13' # by RJH
+LAST_MODIFIED_DATE = '2022-09-19' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.12'
+PROGRAM_VERSION = '0.13'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -451,7 +451,7 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
         if 'd' in command.tags and sourceCount>1 and len(adjustedText) > STANDARD_DISTANCE:
             # 'd' is for distance, and usually used for names
             assert 'l' not in command.tags
-            assert '/' in command.replaceText or '\\add ' in command.replaceText
+            assert '/' in command.replaceText or '\\add ' in command.replaceText, f"Can't use 'd' flag with '{command.replaceText}'"
             shortReplaceText = command.replaceText.split('/')[0] if '/' in command.replaceText \
                 else re.sub( '\\\\add .+?\\\\add[*]', '', command.replaceText ) # the /add part could be at the beginning, the end, or in the middle
             dPrint( 'Info', DEBUGGING_THIS_MODULE, f"Have a distanced replace on {where} text ({len(adjustedText):,} chars) with {sourceCount:,} '{command.searchText}' -> '{shortReplaceText}' from '{command.replaceText}'" )

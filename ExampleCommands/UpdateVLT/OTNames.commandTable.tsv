@@ -18,6 +18,7 @@ dHG									Aram			Ἀρὰμ/(רָם)
 dHG									Arni			Ἀρνὶ/(רָם?)
 dHG									Arphaxad			Ἀρφαξάδ/(אַרְפַּכְשַׂד)
 dHG									Asaph			Ἀσάφ/(אָסָף)
+dHG									Aser			Ἀσήρ/(אָשֵׁר)		Luke 2:36
 dHG									Azor			Ἀζώρ/(עַזּוּר)
 dHG									Balaam			Βαλαάμ/(בִּלְעָם)
 dHG									Barachias			Βαραχίας/(בֶּרֶכְיָה)		Matt 23:35
@@ -31,7 +32,8 @@ dHG									Eber			Ἕβερ/(עֵבֵר)
 dHG									Eleazar			Ἐλεάζαρ/(אֶלְעָזָר)
 dHG									Eliakim			Ἐλιακείμ/(אֶלְיָקִים)
 dHG									Eliezer			Ἐλιέζερ/(אֶלִיעֶזֶר)
-dHG									Elijah			Ἠλίας/(אֵלִיָּה)
+dHG									Elijah			Ἠλίας/(אֵלִיָּה)		Luke 4:26
+dHG									Elisha			Ἐλισσαῖος/(אֱלִישָׁע)		Luke 4:27
 dHG									Eliud			Ἐλιούδ/(אֵל-הוֹד)
 wdHG									Eli			Ἠλὶ/(עֵלִי)
 dHG									Elmadam			Ἐλμωδάμ/(אַלְמוֹדָד?)
@@ -43,6 +45,7 @@ dHG									Esau			Ἠσαῦ/(עֵשָׂו)		Heb 11:20
 dHG									Esli			Ἐσλί/(אֶלְיְהוֹעֵינַי?)
 dHG									Esrom			Ἑσρώμ/(חֶצְרוֹן)
 wdHG									Eve			Εὔα/(חַוָּה)
+dHG									Gabriel			Γαβριήλ/(גַּבְרִיאֵל)		angel Luke 1:19
 dHG									Gog			Γώγ/(גּוֹג)
 dHG									Hezron			Ἑσρώμ/(חֶצְרוֹן)
 dHG									Hezekiah			Ἑζεκίας/(חִזְקִיָּה)
@@ -77,6 +80,7 @@ wdHG									Jude			Ἰούδας/(יְהוּדָה)
 wdHG									Kore			Κορέ/(קֹרַח)		Jude 11
 dHG									Lamech			Λάμεχ/(לֶמֶךְ)
 wdHG									Levi			Λευΐ/(לֵוִי)
+wdHG									Lot			Λώτ/(לוֹט)		Luke 17:28
 wdHG									Maat			Μαάθ/(מָעַט?)
 dHG									Maath			Μαάθ/(מָעַט?)
 dHG									Magog			Μαγώγ/(מָגוֹג)
@@ -96,6 +100,7 @@ wdHG									Melchi			Μελχί/(מֶלֶךְ)
 dHG									Menna			Μαϊνάν/(?)
 dHG									Michael			Μιχαήλ/(מִיכָאֵל)
 dHG									Moses			Μωσῆς/(מֹשֶׁה)
+dHG									Naaman			Νεεμάν/(נַעֲמָן)		Luke 4:27
 dHG									Naasson			Ναασσών/(נַחְשׁוֹן)
 dHG									Nachor			Ναχώρ/(נָחוֹר)
 dHG									Naggai			Ναγγαί/(נֹגַהּ?)
@@ -139,6 +144,10 @@ dHG									Zorobabel			Ζοροβάβελ/(זְרֻבָּבֶל)
 
 # Tribes/Groups
 dHG									Ethiopian			Αἰθίοψ/(כּוּשִׁי)
+dHG									Jerusalemites			\add >ones\add*_from_Ἱερουσαλήμ/(יְרוּשָׁלַם)		Mrk 1:5
+dHG									Levite			Λευΐτης/(from_tribe_of_לֵוִי)		Luk 10:32 doesn't work well for plural yet XXXX........
+dHG									Ninevites			Νινευίτης/(\add >ones\add*_from_נִינְוֵה)		Luk 11:30
+dHG									Ninevite			Νινευίτης/(from_נִינְוֵה)
 wdHG									Samaritan			from_Σαμάρεια/(שֹׁמְרוֹן)
 dHG									Samaritans			Σαμαρείτης/(שֹׁמְרוֹן)
 
@@ -153,8 +162,11 @@ dHG									Gomorrah			Γόμορρα/(עֲמֹרָה)
 dHG									Jericho			Ἰεριχώ/(יְרִיחוֹ)		Heb 11:30
 dHG									Jerusalem			Ἱερουσαλήμ/(יְרוּשָׁלַם)
 dHG									Jordan			Ἰορδάνης/(יַרְדֵּן)
+dHG									Kedron			Κεδρών/(קִדְרוֹן)		John 18:1
 dHG									Rama			Ῥαμά/(רָמָה)		Matt 2:18
 dHG									Salem			Σαλήμ/(שָׁלֵם)
+dHG									Samaria			Σαμάρεια/(שֹׁמְרוֹן)		Luke 17:11
+dHG									Sarepta			Σάρεπτα/(צֱרְפַת)		Luke 4:26
 dHG									Sidon			Σιδών/(צִידוֹן)
 dHG									Sodom			Σόδομα/(סְדֹם)
 wdHG									Syria			Συρία/(אֲרָם)
