@@ -4,6 +4,7 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									/an/			\add +an\add*
 									/An/			\add +An\add*
 									/any/			\add +any\add*		Luke 20:21
+									/its/			\add +its\add*		Acts 11:5
 									/the/			\add +the\add*
 									/The/			\add +The\add*
 
@@ -72,6 +73,7 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									_/may_			 _may_
 									 /might_			 might_
 									 /to_			 to_
+									 /To_			 To_
 									 /will_			 will_
 									 /Will_			 Will_
 									_/will_			 will_

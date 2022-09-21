@@ -12,6 +12,7 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									Creator			creator		1 Peter 4:19
 									Council			council
 									Deity			deity		Col 2:9
+									Devout			devout		Acts 2:27
 									Father			father
 									Field			field		Field of the Potter
 									Gate			gate		John 5:2 Sheep Gate
@@ -31,6 +32,8 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									Messiah			messiah
 									, Oh 			, oh 		Not at the beginning of a sentence
 									Omega			last_letter
+w									One			one		Acts 2:27
+									Originator			originator		Acts 3:15
 									Paradise			paradise
 d									Passover			passover_\add feast\add*
 									Stone_Pavement			stone_pavement		John 19:13 Stone Pavement
@@ -41,6 +44,7 @@ d									Passover			passover_\add feast\add*
 									Preparation			preparation		Day of Preparation
 									Presence			presence		Bread of Presence
 				id					Psalms			psalms		Luke 20:42
+									Righteous			righteous		Acts 3:14
 									Sabbath			sabbath
 									Savior			savior
 									Scripture			scripture		Also gets Scriptures

@@ -2,9 +2,11 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 # Individuals
 G									Adronicus			Ἀνδρόνικος
 G									Aenon			Αἰνών		John 3:23
+G									Agabus			Ἀγαβος		Acts 11:28
 G									Alexander			Ἀλέξανδρος		2 Tim 4:14
 G									Alpheus			Ἀλφαίος
 G									Ampliatus			Ἀμπλίας
+wG									Ananias			Ἀνανίας		Acts 4:1
 G									Andrew			Ἀνδρέας
 G									Annas			Ἄννας
 wG									Anna			Ἅννα		Luke 2:26
@@ -21,25 +23,33 @@ G									Aristobulus			Ἀριστόβουλος
 G									Artemis			Ἀρτεμᾶς		Tit 3:12
 G									Barnabas			Βαρνάβας
 G									Barabbas			Βαραββᾶς
+G									Barjesus			Βαρϊησοῦς		Acts 13:6
+G									Basabbas			Βαρσαββᾶς		Acts 1:23 voted on (but lost) as the 12th disciple
 G									Bartholomew			Βαρθολομαῖος
 G									Bartimaeus			Βαρτίμαιος		Mrk 10:46
 G									Beelzeboul			Βεελζεβούλ
 G									Beliar			Βελίαρ		A name for Satan in 2Co 6:15
-G									Caesar			Καῖσαρ
+G									Blastus			Βλάστος		Acts 12:20
+wG									Caesar			Καῖσαρ
 G									Caiaphas			Καιάφας
 G									Candace			Κανδάκη		Acts 8:27
 G									Carpus			Κάρπος		2 Tim 4:13
 G									Cephas			Κηφᾶς
 G									Chloe			Χλόη
 G									Claudia			Κλαυδία		2 Tim 4:21
+G									Claudius			Κλαύδιος		Acts 11:28
 G									Cleopas			Κλεοπᾶς		Luke 24:18
+G									Cornelius			Κορνήλιος		Acts 10:1
 G									Crescens			Κρήσκης		2 Tim 4:10
 G									Cyrenius			Κυρήνιος		Luke 2:2 (sometimes Quirinius)
 G									Demas			Δημᾶς		Col 4:14
 G									Demetrius			Δημήτριος		3 John 12
 G									Didymus			Δίδυμος/[twin]
 G									Diotrephes			Διοτρεφής		3 John 9
+G									Dorcas			Δορκάς		Acts 9:36
 G									Elizabeth			Ἐλισάβετ		Luk 1:5
+G									Elymas			Ἐλύμας		Acts 13:8
+G									Eneas			Αἰνέας		Acts 9:33 paralytic
 G									Epaenetus			Ἐπαίνετος
 G									Epaphras			Ἐπαφρᾶς		Col 1:7,12
 G									Erastus			Ἔραστος		2 Tim 4:20
@@ -63,20 +73,27 @@ G									Justus			Ἰοῦστος		Col 4:11
 G									Lazarus			Λάζαρος		Luke 16:23
 G									Lebbaios			Λεββαῖος
 G									Linus			Λῖνος		2 Tim 4:21
+G									Lucius			Λούκιος		Acts 13:1
 G				id					Luke			Λουκᾶς
 G									Lysanias			Λυσανίος
 G									Malchus			Μάλχος		John 18:10
+G									Manaen			Μαναήν		Acts 13:1
 G				id					Mark			Μάρκος
 G									Martha			Μάρθα		Luke 10:38
 G									Matthew			Ματθαῖος
+G									Matthias			Ματθίας		Acts 1:23 chosen to be 12th disciple
 G									Narcissus			Νάρκισσος
 G									Nathanael			Ναθαναὴλ
 G									Nereus			Νηρεύς
+G									Nicanor			Νικάνωρ		Acts 6:5
 G									Nicodemus			Νικόδημος
+G									Nicolas			Νικόλαος		Acts 6:5
+G									Niger			Νίγερ		Acts 13:1
 G									Nympha			Νυμφᾶς		Col 4:15
 G									Olympas			Ὀλυμπᾶς
 G									Onesiphorus			Ὀνησίφορος		2 Tim 4:19
-G									Patrobas			Πατρόβας
+G									Timon			Τίμων		Acts 6:5
+G									Parmenas			Παρμενᾶς		Acts 6:5
 G									Paul			Παῦλος
 G									Persis			Περσίς
 G									Peter			Πέτρος
@@ -90,18 +107,28 @@ G									Phoebe			Φοίβη
 wG									Pilate			Πιλᾶτος
 G									Pontius			Πόντιος
 G									Prisca			Πρίσκα
+G									Prochorus			Πρόχορος		Acts 6:5
 G									Pudens			Πούδης		2 Tim 4:21
 G									Quartus			Κούαρτος
+G									Rhoda			Ῥόδη		Acts 12:13
+G									Romfa			Ῥεμφάν		Acts 7:43
 G									Rufus			Ῥοῦφος
 G									Salome			Σαλώμη		Mrk 15:40, 16:1
+G									Sapphira			Σαπφείρη		Acts 4:1
+G									Sergius			Σέργιος		Acts 13:6
 G									Silvanus			Σιλουανός
 wG									Simon			Σίμων
 G									Sosthenes			Σωσθένης
 G									Stachys			Στάχυς
+G									Stephen			Στέφανος		Acts 6:5
+G									Tabitha			Ταβηθά		Acts 9:36
 G									Thaddeus			Θαδδαῖος
+G									Theophilus			Θεόφιλος		Acts 1:1
+G									Theudas			Θευδᾶς		Acts 5:36
 G									Thomas			Θωμᾶς
 G									Tiberias			Τιβερίος
 G									Timeus			Τιμαῖος		Mrk 10:46
+G									Timon			Τίμων		Acts 6:5
 G				id					Timothy			Τιμόθεος
 G				id					Titus			Τίτος
 G									Trophimus			Τρόφιμος		2 Tim 4:20
@@ -115,29 +142,43 @@ G									Zebedee			Ζεβεδαῖος
 G									Zenas			Ζηνᾶς		Tit 3:13
 
 # Tribes/Groups
+G									Antiochene			from_Ἀντιόχεια		Acts 6:5
+G									Arabs			\add >ones\add*_from_Ἀραβία		Acts 2:11
 G									Canaanite			member_of_Κανανίτης
 G									Corinthians			Κορίνθιος		2 Cor 6:11
-G									Cretans			Κρής		Tit 1:12
+G									Cretans			\add >ones\add*_from_Κρήτη		Acts 2:11 Tit 1:12
+G									Cyrenians			\add >ones\add*from_Κυρήνη		Acts 6:9
 G									Cyrenian			from_Κυρήνη		Mat 27:32
+G									Cyprian			from_Κύπρος		Acts 4:36 Cyprus, an island at the east end of the Mediterranean Sea
+G									Elamites			\add >ones\add*_from_Ἐλαμ		Acts 2:9
 G									Gadarenes			Γαδαρηνός
 G									Galileans			Γαλιλαῖος
 wG									Galilean			Γαλιλαῖος
 G									Greeks			Ἕλληνs		John 7:35 (English s at end)
 wG									Greek			Ἕλλην
+G									Hebrews			Ἑβραῖος		Acts 6:1
+G									Hellenists			Ἑλληνιστής		Acts 6:1
 G									Herodians			supporters_of_Ἡρῴδης		Mrk 3:6
+G									Italian			from_Ἰταλία		Acts 10:1
+G									Jewish			Ἰουδαίωνs		Acts 10:28 adjective NOT REALLY HAPPY WITH THIS YET!
 G									Jews			Ἰουδαίωνs		Matt 2:2 NOT REALLY HAPPY WITH THIS YET!
+G									Judeans			\add >ones\add*_from_Ἰουδαία		Acts 2:11
 G									Magdalene			from_Μαγδαλά
+G									Medes			\add >ones\add*_from_Μῆδια		Acts 2:9
 G									Nazarean			Ναζαρηνός
-G									Nazarene			Ναζωραῖος		Matt 2:23
+G						ACT_24:5			Nazarene			from_Ναζαρέτ		Matt 2:23 Acts 2:22
+G									Parthians			\add >ones\add*_from_Πάρθια		Acts 2:9
 G									Philippians			Φιλιππήσιος		Php 4:15 plus in headings
 G									Romans			Ῥωμαῖος		John 11:48
 G									Scythian			Σκύθης		Col 3:11
 G									Syrian			from_Συρία		Luke 4:27
 G									Syrophoenician			from_Φοινίκη_in_Συρία		Mrk 7:26
+G									Tarsian			from_Ταρσός		Acts 9:11
 
 # Places
 G									Abilene			Ἀβιληνή		Luke 3:1
 G									Achaia			Ἀχαϊα
+G									Akeldamach			Ἀκελδαμά		Acts 1:19
 G									Antioch			Ἀντιόχεια		2 Tim 3:11
 G									Arimathea			Ἀριμαθαία		Mrk 15:43
 G									Asia			Ἀσία
@@ -147,6 +188,7 @@ G									Bethlehem			Βηθλεέμ
 G									Bethphage			Βηθφαγή		Matt 21:1
 G									Bethsaida			Βηθσαϊδά
 G									Bithynia			Βιθυνία
+G									Caesarea			Καισάρεια		Acts 8:40
 wG									Cana			Κανὰ
 G									Capernaum			Καφαρναοὺμ
 G									Cappadocia			Καππαδοκία
@@ -155,6 +197,8 @@ G									Chorazin			Χοραζίν
 G									Cilica			Κιλικία
 wG									Corinth			Κόρινθος
 G									Crete			Κρήτη		Tit 1:5
+G									Cyrene			Κυρήνη		Acts 2:10 a district west of Egypt on the Mediterranean coast
+G									Cyprus			Κύπρος		Acts 11:19
 G									Dalmatia			Δαλματία		2 Tim 4:10
 G									Decapolis			Δεκάπολις
 G									Emmaus			Ἐμμαούς		Luke 24:13
@@ -170,27 +214,38 @@ G									Iconium			Ἰκόνιον		2 Tim 3:11
 G									Idumea			Ἰδουμαία		Mrk 3:8
 G									Iturea			Ἰτουραῖος		Luke 3:1
 G									Joppa			Ἰόππῃ
-G									Judea			Ἰουδαία
+wG									Judea			Ἰουδαία
 G									Laodicea			Λαοδικεία
+G									Libya			Λιβύη		Acts 2:10 North Africa
 G									Lystra			Λύστρα		2 Tim 3:11
 G									Macedonia			Μακεδονία
 G									Magadan			Μαγαδάν
+G									Mesopotamia			Μεσοποταμία		Acts 2:9
 G									Miletus			Μίλητος		2 Tim 4:20
 G									Nain			Ναΐν		Luke 7:11
 G									Nazareth			Ναζαρέτ
 G									Nicopolis			Νικόπολις		Tit 3:12
-wG									Patmos			Πάτμος
-wG									Pergamus			Πέργαμος
-wG									Philadelphia			Φιλαδέλφεια
+G									Paphos			Πάφος		Acts 13:6
+G									Pamphylia			Παμφυλία		Acts 2:10 a province of Asia Minor
+G									Patmos			Πάτμος
+wG									Perga			Πέργη		Acts 13:13
+G									Pergamus			Πέργαμος
+G									Philadelphia			Φιλαδέλφεια
 wG									Philippi			Φιλίππου
+G									Phoenicia			Φοινίκη		Acts 11:19
+G									Phrygia			Φρυγία		Acts 2:10
+G									Pisidia			Πισιδία		Acts 13:14
 wG									Pontus			Πόντος
 wG									Rome			Ῥώμη
+G									Salamis			Σαλαμίς		Acts 13:5 in Cyprus
 G									Salim			Σαλείμ		John 3:23
 wG									Sardis			Σάρδεις
+G									Seleucia			Σελεύκεια		Acts 13:4
 G									Siloam			Σιλωάμ		Luke 13:4
 wG									Smyrna			Σμύρνα
 G									Sychar			Συχάρ		John 4:5
+G									Tarsus			Ταρσός		Acts 9:30
 G									Thessalonica			Θεσσαλονίκη		2 Tim 4:10
-wG									Thyatira			Θυάτειρα
+G									Thyatira			Θυάτειρα
 G									Trachonitis			Τραχωνῖτις		Luke 3:1
 wG									Troas			Τρῳάς

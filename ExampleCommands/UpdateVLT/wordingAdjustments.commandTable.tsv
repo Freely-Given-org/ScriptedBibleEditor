@@ -25,6 +25,7 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									loose			untie/release		Matt 16:19
 w									magi			wise_men
 									millstone			grinding_stone		Matt 18:6
+									Portico			Veranda		Acts 5:12
 									praetorium			residence_of_the_governor		John 18:28 πραιτώριον
 									, Rabbi			, my_great_\add >one\add*
 									Rabbi			, My_great_\add >one\add*
@@ -53,6 +54,6 @@ G									lepton			λεπτόν_\add coin\add*		Luke 21:2
 wG									mina			\add silver\add*_μνᾶ		Luke 19:13-27
 
 # Weights and measures
-dGH									baths			βάτος/(בַּת)_\add measures\add*		Luke 16:6
-dGH									cors			κόρος/(כֹּר)_\add measures\add*		Luke 16:7
+wdGH									baths			βάτος/(בַּת)_\add measures\add*		Luke 16:6
+wdGH									cors			κόρος/(כֹּר)_\add measures\add*		Luke 16:7
 GH									stadium			στάδιον		Luke 24:13 one eighth of a Roman mile

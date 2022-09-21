@@ -46,10 +46,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2022-09-19' # by RJH
+LAST_MODIFIED_DATE = '2022-09-21' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.13'
+PROGRAM_VERSION = '0.14'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -189,7 +189,6 @@ def loadCommandTables() -> bool:
                             tab_count = line.count( '\t' )
                         if tab_count != (COMMAND_TABLE_NUM_COLUMNS - 1):
                             logging.critical( f"Skipping line {line_number} which contains {tab_count} tabs (instead of {COMMAND_TABLE_NUM_COLUMNS - 1})" )
-                            halt; continue
                         if line == COMMAND_HEADER_LINE:
                             continue # as no need to save this
                         fields = line.split( '\t' )
@@ -371,8 +370,7 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
                 if BCVRef in command.eRefs:
                     assert BCVRef not in command.iRefs
                     newLines.append( line )
-                    vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping excluded '{BCVRef}' reference…" )
-                    halt
+                    vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping excluded '{BCVRef}' reference with '{line}'…" )
                     continue
                 if command.iRefs and CVRef not in command.iRefs and BCVRef not in command.iRefs:
                     newLines.append( line )
