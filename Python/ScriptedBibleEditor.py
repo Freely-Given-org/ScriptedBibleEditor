@@ -53,7 +53,7 @@ PROGRAM_VERSION = '0.14'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
-LEAVE_REPLACEMENT_INDICATORS = False # Leaves indicators in the output to show where replacements were done
+LEAVE_REPLACEMENT_INDICATORS = True # Leaves indicators in the output to show where replacements were done
 
 
 # TODO: Need to allow parameters to be specified on the command line
