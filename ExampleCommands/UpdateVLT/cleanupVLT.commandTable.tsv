@@ -1,6 +1,4 @@
 Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
-# Unusual words and word combinations
-				id					anointed|messiah			anointed
 
 # Remove inserted word indicators
 									_> 			_ 	removeInsert1Start	Remove indicator of start of inserted words (like "not") after pre
@@ -12,7 +10,7 @@ Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	R
 									 <=_			 _	removeInsert2End	Remove indicator of end of inserted words (like "not") after helper
 
 # Put underlines inside adds
-									\add*_			_\add*	moveUnderlineInsideAddEnd
+#									\add*_			_\add*	moveUnderlineInsideAddEnd
 
 # Punctuation and spaces
 				id					 - 			 	removeHyphenSpaces	Remove hyphen (untranslated article) surrounded by spaces
@@ -28,5 +26,5 @@ l									  			 	reduceDoubleSpaces	Reduce double spaces in entire file
 									_/_			_	fixUnknownPatthern	Fix an unexplained pattern _/_left in Matt 18:12
 
 # Some wording problems
-									the the_			the 		Trailing space
-									the these			these
+									 the the_			 the 		Trailing space
+									 the these			 these

@@ -45,10 +45,10 @@ import BibleOrgSysGlobals
 from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
 
 
-LAST_MODIFIED_DATE = '2022-09-01' # by RJH
+LAST_MODIFIED_DATE = '2022-09-23' # by RJH
 SHORT_PROGRAM_NAME = "extractVLT"
 PROGRAM_NAME = "Extract VLT USFM files"
-PROGRAM_VERSION = '0.09'
+PROGRAM_VERSION = '0.11'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = True
@@ -188,10 +188,12 @@ def loadSourceCollationTable() -> bool:
 
     # Read, check the number of columns, and summarise row contents all in one go
     dict_reader = DictReader(csv_lines)
+    unique_words = set()
     for n, row in enumerate(dict_reader):
         if len(row) != NUM_EXPECTED_COLLATION_COLUMNS:
             print(f"Line {n} has {len(row)} columns instead of {NUM_EXPECTED_COLLATION_COLUMNS}!!!")
         collation_csv_rows.append(row)
+        unique_words.add(row['Medieval'])
         for key, value in row.items():
             # collation_csv_column_sets[key].add(value)
             if n==0: # We do it like this (rather than using a defaultdict(int)) so that all fields are entered into the dict in the correct order
@@ -203,6 +205,7 @@ def loadSourceCollationTable() -> bool:
                 collation_csv_column_non_blank_counts[key] += 1
             collation_csv_column_counts[key][value] += 1
     print(f"  Loaded {len(collation_csv_rows):,} collation CSV data rows.")
+    print(f"    Have {len(unique_words):,} unique Greek words.")
 
     return True
 # end of extractVLT.loadSourceCollationTable
@@ -393,6 +396,8 @@ def preform_gloss(given_verse_row: Dict[str,str], last_given_verse_row: Dict[str
         = given_verse_row['GlossPre'], given_verse_row['GlossHelper'], given_verse_row['GlossWord'], given_verse_row['GlossPost'], given_verse_row['GlossPunctuation'], given_verse_row['GlossCapitalization']
     try: glossInsert = given_verse_row['GlossInsert']
     except KeyError: glossInsert = '' # it's not in Alan's tables yet
+    if given_verse_row['Koine'].startswith( '=' ): # it's a nomina sacra
+        glossWord = f"\\nd {glossWord}\\nd*" # we use the USFM divine name style
     pre_punctuation, post_punctuation = separate_punctuation(glossPunctuation)
 
     # These first ones are different cases coz they all work internally on a single row
