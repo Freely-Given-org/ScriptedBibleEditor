@@ -261,6 +261,7 @@ def executeEditsOnAllFiles() -> bool:
     if 'applyOrder' in state.controlData and state.controlData['applyOrder']:
         applyOrder = state.controlData['applyOrder']
 
+    numFilesWritten = 0
     if applyOrder == 'AllTablesFirst':
         for BBB in BibleOrgSysGlobals.loadedBibleBooksCodes:
             UUU = BibleOrgSysGlobals.loadedBibleBooksCodes.getUSFMAbbreviation( BBB ) or ''
@@ -286,11 +287,13 @@ def executeEditsOnAllFiles() -> bool:
                     vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"    Writing {len(appliedText):,} characters (was {len(inputText):,}) to {outputFilename}…" )
                     with open( outputFilepath, 'wt', encoding='utf-8' ) as outputFile:
                         outputFile.write(appliedText)
+                    numFilesWritten += 1
                 # break # while debugging first file
     else:
         other_orders_not_implemented_yet
 
-    return False
+    vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"  {numFilesWritten} files written to {outputFolder}." )
+    return numFilesWritten > 0
 # end of ScriptedBibleEditor.executeEditsOnAllFiles
 
 
