@@ -12,10 +12,11 @@
 title = "ScriptedBibleEditor OET-LV Sample Control File"
 description = "To convert USFM files to create the draft OET-LV"
 
-inputFolder = "../../TestFiles/modified_source_VLT_USFM/"
+inputFolder = "../../../OpenEnglishTranslation--OET/sourceTexts/modified_source_VLT_USFM/"
 inputFilenameTemplate = "BBB_gloss.usfm"
 
-outputFolder = "../../TestFiles/edited_VLT_USFM/"
+#outputFolder = "../../TestFiles/edited_VLT_USFM/"
+outputFolder = "../../../OpenEnglishTranslation--OET/derivedTexts/auto_edited_VLT_USFM/"
 outputFilenameTemplate = "OET-LV_BBB.usfm"
 clearOutputFolder = true # Removes the folder and recreates it if createOutputFolder is true (else deletes all files in the folder)
 createOutputFolder = true
