@@ -46,20 +46,13 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2022-09-21' # by RJH
+LAST_MODIFIED_DATE = '2022-10-06' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.14'
+PROGRAM_VERSION = '0.21'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
-LEAVE_REPLACEMENT_INDICATORS = True # Leaves indicators in the output to show where replacements were done
-
-
-# TODO: Need to allow parameters to be specified on the command line
-# Choose one of the following
-# ADDITIONAL_SEARCH_PATH = '../ExampleCommands/ModerniseYLT/'
-ADDITIONAL_SEARCH_PATH = '../ExampleCommands/UpdateVLT/'
 
 
 DUMMY_VALUE = 999_999 # Some number bigger than the number of characters in a line
@@ -112,7 +105,7 @@ def main() -> None:
 
     global state
     state = State()
-    if LEAVE_REPLACEMENT_INDICATORS:
+    if BibleOrgSysGlobals.commandLineArguments.flagReplacements:
         vPrint( 'Quiet', DEBUGGING_THIS_MODULE, "LEAVE_REPLACEMENT_INDICATORS flag is enabled! (Maybe affect consecutive replacements)" )
 
     load_transliteration_table( 'Hebrew' )
@@ -134,16 +127,17 @@ def findControlFile():
 
     searchPaths = [DEFAULT_CONTROL_FILE_NAME,]
     try:
-        if ADDITIONAL_SEARCH_PATH: # May not even be defined
-            searchPaths.append( f'{ADDITIONAL_SEARCH_PATH}{DEFAULT_CONTROL_FILE_NAME}')
+        if BibleOrgSysGlobals.commandLineArguments.controlPath: # May not even be defined
+            searchPaths.insert( 0, f'{BibleOrgSysGlobals.commandLineArguments.controlPath}/{DEFAULT_CONTROL_FILE_NAME}')
     except ValueError:
         pass
 
     for filepath in searchPaths:
         if os.path.isfile(filepath):
+            vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"  Loaded control file from {filepath}" )
             return filepath
 
-    vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"No control file found in {searchPaths}." )
+    logging.critical( f"No control file found in {searchPaths}." )
 # end of ScriptedBibleEditor.findControlFile
 
 
@@ -159,7 +153,7 @@ def loadControlFile( filepath ) -> bool:
         displayTitle = f"'{state.controlData['title']}'" \
                         if 'title' in state.controlData and state.controlData['title'] \
                         else "control file"
-        vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"  Loaded {len(state.controlData)} parameter{'' if len(state.controlData)== 1 else 's'} from {displayTitle}." )
+        vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"    Loaded {len(state.controlData)} parameter{'' if len(state.controlData)== 1 else 's'} from {displayTitle}." )
         return len(state.controlData) > 0
     return False
 # end of ScriptedBibleEditor.loadControlFile
@@ -197,7 +191,7 @@ def loadCommandTables() -> bool:
                             newReplaceText = transliterate_Hebrew( replaceText, searchText[0].isupper() )
                             if newReplaceText != replaceText:
                                 # print(f" Converted Hebrew '{replaceText}' to '{newReplaceText}'")
-                                replaceText = f'H‹{newReplaceText}›H' if LEAVE_REPLACEMENT_INDICATORS else newReplaceText
+                                replaceText = f'H‹{newReplaceText}›H' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else newReplaceText
                             for char in replaceText:
                                 if 'HEBREW' in unicodedata.name(char):
                                     logging.critical(f"Have some Hebrew left-overs in '{replaceText}'")
@@ -206,7 +200,7 @@ def loadCommandTables() -> bool:
                             newReplaceText = transliterate_Greek( replaceText )
                             if newReplaceText != replaceText:
                                 # print(f" Converted Greek '{replaceText}' to '{newReplaceText}'")
-                                replaceText = f'G‹{newReplaceText}›G' if LEAVE_REPLACEMENT_INDICATORS else newReplaceText
+                                replaceText = f'G‹{newReplaceText}›G' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else newReplaceText
                             for char in replaceText:
                                 if 'GREEK' in unicodedata.name(char):
                                     logging.critical(f"Have some Greek left-overs in '{replaceText}'")
@@ -216,7 +210,7 @@ def loadCommandTables() -> bool:
                                 list(fields[3].split(',')) if fields[3] else [], list(fields[4].split(',')) if fields[4] else [],
                                 list(fields[5].split(',')) if fields[5] else [], list(fields[6].split(',')) if fields[6] else [],
                                 fields[7], fields[8], searchText, fields[10], fields[11],
-                                f'R‹{replaceText}›R' if LEAVE_REPLACEMENT_INDICATORS and BibleOrgSysGlobals.verbosityLevel>2 else replaceText, fields[13], fields[14] ) )
+                                f'R‹{replaceText}›R' if BibleOrgSysGlobals.commandLineArguments.flagReplacements and BibleOrgSysGlobals.verbosityLevel>2 else replaceText, fields[13], fields[14] ) )
                 vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"    Loaded {len(state.commandTables[name])} command{'' if len(state.commandTables[name])==1 else 's'} for '{name}'." )
             else: vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"      '{completeFilepath}' is not a file!" )
         return True
@@ -378,7 +372,6 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
                 if command.iRefs and CVRef not in command.iRefs and BCVRef not in command.iRefs:
                     newLines.append( line )
                     vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping not included '{BCVRef}' reference…" )
-                    halt
                     continue
                 # If we get here, we need to process the USFM field
                 newLines.append( editFunction( f'{BCVRef}~{marker}', line, command ) )
@@ -525,7 +518,7 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
     adjustedText = inputText
 
     myRegexSearchString = f'({command.searchText})'
-    myRegexReplaceString = f'Rx-{command.replaceText}-Rx' if LEAVE_REPLACEMENT_INDICATORS else command.replaceText
+    myRegexReplaceString = f'Rx-{command.replaceText}-Rx' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else command.replaceText
     if command.preText:
         # myRegexSearchString = f'({command.preText}){myRegexSearchString}'
         # myRegexReplaceString = f'\\1{myRegexReplaceString}'
@@ -566,6 +559,8 @@ if __name__ == '__main__':
 
     # Configure basic Bible Organisational System (BOS) set-up
     parser = BibleOrgSysGlobals.setup( SHORT_PROGRAM_NAME, PROGRAM_VERSION, LAST_MODIFIED_DATE )
+    parser.add_argument('controlPath', help="path of ScriptedBibleEditor.control.toml")
+    parser.add_argument('-f', '--flag', action='store_true', dest='flagReplacements', default=False, help="flag where replacements were made")
     BibleOrgSysGlobals.addStandardOptionsAndProcess( parser )
 
     main()
