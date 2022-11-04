@@ -46,10 +46,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2022-10-06' # by RJH
+LAST_MODIFIED_DATE = '2022-11-02' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.21'
+PROGRAM_VERSION = '0.22'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -106,7 +106,7 @@ def main() -> None:
     global state
     state = State()
     if BibleOrgSysGlobals.commandLineArguments.flagReplacements:
-        vPrint( 'Quiet', DEBUGGING_THIS_MODULE, "LEAVE_REPLACEMENT_INDICATORS flag is enabled! (Maybe affect consecutive replacements)" )
+        vPrint( 'Quiet', DEBUGGING_THIS_MODULE, "<<<<< LEAVE_REPLACEMENT_INDICATORS flag is enabled! (Maybe affect consecutive replacements) >>>>>" )
 
     load_transliteration_table( 'Hebrew' )
     load_transliteration_table( 'Greek' )
@@ -506,6 +506,9 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
 # end of ScriptedBibleEditor.executeEditChunkCommand
 
 
+def escape_backslash( regex:str ) -> str:
+    return regex.replace('\\','\\\\')
+
 def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> str:
     """
     Assumes we're in the right text field.
@@ -517,19 +520,19 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
     fnPrint( DEBUGGING_THIS_MODULE, f"executeRegexEditChunkCommand( {where}, {len(inputText)}, {command} )" )
     adjustedText = inputText
 
-    myRegexSearchString = f'({command.searchText})'
-    myRegexReplaceString = f'Rx-{command.replaceText}-Rx' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else command.replaceText
+    myRegexSearchString = f'({escape_backslash(command.searchText)})'
+    myRegexReplaceString = f'Rx-{escape_backslash(command.replaceText)}-Rx' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else escape_backslash(command.replaceText)
     if command.preText:
         # myRegexSearchString = f'({command.preText}){myRegexSearchString}'
         # myRegexReplaceString = f'\\1{myRegexReplaceString}'
-        myRegexSearchString = f'(?{command.preText}){myRegexSearchString}'
+        myRegexSearchString = f'(?{escape_backslash(command.preText)}){myRegexSearchString}'
         dPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"Have PRE TEXT '{command.preText}' before '{myRegexSearchString}'" )
     elif 'w' in command.tags: # search after a word break -- matches after \b or after _
         myRegexSearchString = f'\\b{myRegexSearchString}|(?<=_){myRegexSearchString}'
     if command.postText:
         # myRegexSearchString = f'{myRegexSearchString}({command.postText})'
         # myRegexReplaceString = f'{myRegexReplaceString}\\3'
-        myRegexSearchString = f'{myRegexSearchString}(?{command.postText})'
+        myRegexSearchString = f'{myRegexSearchString}(?{escape_backslash(command.postText)})'
         dPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"Have POST TEXT '{command.postText}' after '{myRegexSearchString}'" )
     elif 'w' in command.tags:
         if '|(?<=_)' in myRegexSearchString:
