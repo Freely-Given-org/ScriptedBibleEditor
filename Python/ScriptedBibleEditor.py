@@ -5,7 +5,7 @@
 #
 # Module handling ScriptedBibleEditor functions
 #
-# Copyright (C) 2022 Robert Hunt
+# Copyright (C) 2022-2023 Robert Hunt
 # Author: Robert Hunt <Freely.Given.org+BOS@gmail.com>
 # License: See gpl-3.0.txt
 #
@@ -46,10 +46,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2022-11-02' # by RJH
+LAST_MODIFIED_DATE = '2023-01-17' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.22'
+PROGRAM_VERSION = '0.23'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -161,6 +161,10 @@ def loadControlFile( filepath ) -> bool:
 
 def loadCommandTables() -> bool:
     """
+    Load all the command tables in the specified folder
+        into state.commandTables
+
+    Does some basic checking at the same time
     """
     fnPrint( DEBUGGING_THIS_MODULE, "loadCommandTables()")
     if 'commandTables' in state.controlData:
@@ -185,8 +189,31 @@ def loadCommandTables() -> bool:
                             logging.critical( f"Skipping line {line_number} which contains {tab_count} tabs (instead of {COMMAND_TABLE_NUM_COLUMNS - 1})" )
                         if line == COMMAND_HEADER_LINE:
                             continue # as no need to save this
-                        fields = line.split( '\t' )
+
+                        # Get the fields and check some of them
+                        fields = line.split( '\t' ) # 0:Tags 1:IBooks 2:EBooks 3:IMarkers 4:EMarkers 5:IRefs 6:ERefs 7:PreText 8:SCase 9:Search 10:PostText 11:RCase 12:Replace 13:Name 14:Comment
                         tags, searchText, replaceText = fields[0], fields[9], fields[12]
+                        iBooks, eBooks = fields[1].split(',') if fields[1] else [], fields[2].split(',') if fields[2] else []
+                        iMarkers, eMarkers = fields[3].split(',') if fields[3] else [], fields[4].split(',') if fields[4] else []
+                        iRefs, eRefs = fields[5].split(',') if fields[5] else [], fields[6].split(',') if fields[6] else []
+                        for iBook in iBooks:
+                            assert iBook in BibleOrgSysGlobals.loadedBibleBooksCodes, iBook
+                        for eBook in eBooks:
+                            assert eBook in BibleOrgSysGlobals.loadedBibleBooksCodes, eBook
+                        for iRef in iRefs:
+                            assert iRef.count('_')==1 and iRef.count(':')==1, iRef
+                            iRefBits = iRef.split('_')
+                            assert iRefBits[0] in BibleOrgSysGlobals.loadedBibleBooksCodes, iRef
+                            iRefC, iRefV = iRefBits[1].split(':')
+                            assert iRefC[0].isdigit() and iRefV[0].isdigit(), iRef
+                        for eRef in eRefs:
+                            assert eRef.count('_')==1 and eRef.count(':')==1, eRef
+                            eRefBits = eRef.split('_')
+                            assert eRefBits[0] in BibleOrgSysGlobals.loadedBibleBooksCodes, eRef
+                            eRefC, eRefV = eRefBits[1].split(':')
+                            assert eRefC[0].isdigit() and eRefV[0].isdigit(), eRef
+
+                        # Adjust and save the fields
                         if 'H' in tags:
                             newReplaceText = transliterate_Hebrew( replaceText, searchText[0].isupper() )
                             if newReplaceText != replaceText:
@@ -206,9 +233,7 @@ def loadCommandTables() -> bool:
                                     logging.critical(f"Have some Greek left-overs in '{replaceText}'")
                                     break
                         state.commandTables[name].append( EditCommand( tags,
-                                list(fields[1].split(',')) if fields[1] else [], list(fields[2].split(',')) if fields[2] else [],
-                                list(fields[3].split(',')) if fields[3] else [], list(fields[4].split(',')) if fields[4] else [],
-                                list(fields[5].split(',')) if fields[5] else [], list(fields[6].split(',')) if fields[6] else [],
+                                iBooks, eBooks, iMarkers, eMarkers, iRefs, eRefs,
                                 fields[7], fields[8], searchText, fields[10], fields[11],
                                 f'R‹{replaceText}›R' if BibleOrgSysGlobals.commandLineArguments.flagReplacements and BibleOrgSysGlobals.verbosityLevel>2 else replaceText, fields[13], fields[14] ) )
                 vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"    Loaded {len(state.commandTables[name])} command{'' if len(state.commandTables[name])==1 else 's'} for '{name}'." )
