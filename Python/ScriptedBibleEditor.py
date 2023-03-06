@@ -26,13 +26,17 @@
 Module handling ScriptedBibleEditor functions.
 
 TODO: Need to allow parameters to be specified on the command line
+
+Updates:
+    2023-03-06 To use new Python tomllib (which parses binary files) so only works now in Python3.11 and above
+    2023-03-07 To copy TSV tables across to the output for ESFM projects
 """
 from gettext import gettext as _
-from typing import Dict, List, NamedTuple, Tuple, Optional
+from typing import Dict, List, Set, NamedTuple, Tuple, Optional
 from pathlib import Path
 import os
 import shutil
-import toml
+import tomllib
 import logging
 from datetime import datetime
 import re
@@ -46,10 +50,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2023-01-17' # by RJH
+LAST_MODIFIED_DATE = '2023-03-07' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.23'
+PROGRAM_VERSION = '0.25'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -148,8 +152,8 @@ def loadControlFile( filepath ) -> bool:
 
     state.controlFolderpath = os.path.dirname( filepath )
     vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"Loading control file: {filepath}…" )
-    with open(filepath, 'rt', encoding='utf=8') as controlFile:
-        state.controlData = toml.load( controlFile )
+    with open(filepath, 'rb') as controlFile:
+        state.controlData = tomllib.load( controlFile )
         displayTitle = f"'{state.controlData['title']}'" \
                         if 'title' in state.controlData and state.controlData['title'] \
                         else "control file"
@@ -282,6 +286,7 @@ def executeEditsOnAllFiles() -> bool:
 
     numFilesWritten = 0
     if applyOrder == 'AllTablesFirst':
+        esfmFilelist = set()
         for BBB in BibleOrgSysGlobals.loadedBibleBooksCodes:
             UUU = BibleOrgSysGlobals.loadedBibleBooksCodes.getUSFMAbbreviation( BBB ) or ''
             inputFilename = state.controlData['inputFilenameTemplate'] \
@@ -297,6 +302,7 @@ def executeEditsOnAllFiles() -> bool:
                 with open( inputFilepath, 'rt', encoding='utf-8') as inputFile:
                     inputText = inputFile.read()
                 vPrint( 'Info', DEBUGGING_THIS_MODULE, f"    Read {len(inputText):,} characters from {inputFilename}" )
+                extractESFMTableNames( inputFilename, inputText, esfmFilelist )
                 appliedText = executeEdits( BBB, inputText, state.commandTables )
                 if appliedText != inputText: # Make a backup before overwriting the input file
                     appliedText = appliedText.replace( '\n\\h ', f"\n\\rem USFM file edited {datetime.now().strftime('%Y-%m-%d %H:%M')} by {PROGRAM_NAME_VERSION}\n\\h " )
@@ -308,12 +314,70 @@ def executeEditsOnAllFiles() -> bool:
                         outputFile.write(appliedText)
                     numFilesWritten += 1
                 # break # while debugging first file
+        if esfmFilelist:
+            numFilesWritten += copyAuxilliaryESFMfiles( Path(inputFolder), Path(outputFolder), esfmFilelist )
     else:
         other_orders_not_implemented_yet
 
     vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"  {numFilesWritten} files written to {outputFolder}." )
     return numFilesWritten > 0
 # end of ScriptedBibleEditor.executeEditsOnAllFiles
+
+
+def extractESFMTableNames( filename:str, fileText:str, esfmFilelist:Set[str] ) -> int:
+    """
+    Checks if the filename and fileText specify an ESFM file.
+    If so, looks for ESFM table names, and adds them to the set.
+    """
+    fnPrint( DEBUGGING_THIS_MODULE, f"extractESFMTableNames( {filename}, {len(fileText)}, {len(esfmFilelist)} )" )
+
+    if filename.endswith( '.ESFM' ):
+        assert '\\rem ESFM v' in fileText
+        ix = fileText.index( '\\rem ESFM v' ) + 11
+        ixEnd = fileText.index( '\n', ix )
+        versionAndBookStuff = fileText[ix:ixEnd]
+        # print( f"Got '{versionAndBookStuff}'" )
+        versionString, BBB = versionAndBookStuff.split( ' ', 1 )
+        # print( f"Processing ESFM v{versionString} for {BBB}" )
+        assert 0.5 <= float(versionString) <=  1.0
+    elif '\\rem ESFM v' in fileText:
+        logging.critical( f"Text seems to be ESFM but file extension is not .ESFM" )
+        halt
+    else:
+        return 0 # nothing to do and nothing done
+
+    numAdded = 0
+    for tableType in ('WORKDATA','FILEDATA','WORDTABLE'):
+        searchString = f'\\rem {tableType} '
+        ix = fileText.find( searchString )
+        if ix == -1: # Didn't find this table type
+            continue
+        ix += len(searchString) # We want the bit AFTER what we just found
+        ixEnd = fileText.index( '\n', ix )
+        filename = fileText[ix:ixEnd]
+        esfmFilelist.add( filename )
+        numAdded += 1
+
+    return numAdded
+# end of ScriptedBibleEditor.extractESFMTableNames
+
+
+def copyAuxilliaryESFMfiles( inputFolder:Path, outputFolder:Path, esfmFilelist:Set[str] ) -> int:
+    """
+    Copies the ESFM auxilliary files across to the output folder.
+
+    Returns the number of files copied across
+    """
+    fnPrint( DEBUGGING_THIS_MODULE, f"copyAuxilliaryESFMfiles( {inputFolder}, {outputFolder}, {len(esfmFilelist)} )" )
+
+    for filename in esfmFilelist:
+        inputFilepath = inputFolder.joinpath( filename )
+        outputFilepath = outputFolder.joinpath( filename )
+        dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"Copying ESFM auxilliary {inputFilepath} to {outputFilepath}…" )
+        shutil.copy2( inputFilepath, outputFilepath )
+    
+    return len(esfmFilelist)
+# end of ScriptedBibleEditor.copyAuxilliaryESFMfiles
 
 
 def executeEdits( BBB:str, inputText:str, commandTables ) -> str:
