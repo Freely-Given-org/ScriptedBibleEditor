@@ -30,6 +30,7 @@ TODO: Need to allow parameters to be specified on the command line
 Updates:
     2023-03-06 To use new Python tomllib (which parses binary files) so only works now in Python3.11 and above
     2023-03-07 To copy TSV tables across to the output for ESFM projects
+    2023-03-08 To handle ESFM ¦nnn word numbers
 """
 from gettext import gettext as _
 from typing import Dict, List, Set, NamedTuple, Tuple, Optional
@@ -50,10 +51,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2023-03-07' # by RJH
+LAST_MODIFIED_DATE = '2023-03-09' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.25'
+PROGRAM_VERSION = '0.27'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -158,8 +159,19 @@ def loadControlFile( filepath ) -> bool:
                         if 'title' in state.controlData and state.controlData['title'] \
                         else "control file"
         vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"    Loaded {len(state.controlData)} parameter{'' if len(state.controlData)== 1 else 's'} from {displayTitle}." )
-        return len(state.controlData) > 0
-    return False
+
+    # Check that the control file mostly contains what we expected
+    # print( type(state.controlData), len(state.controlData), state.controlData )
+    for someKey in state.controlData:
+        if not someKey.endswith( '.tsv' ) \
+        and someKey not in ('title','description',
+                            'inputFolder','inputFilenameTemplate',
+                            'outputFolder','outputFilenameTemplate','clearOutputFolder','createOutputFolder',
+                            'applyOrder', 'commandTables',
+                            'handleESFMWordNumbers'):
+            logging.critical( f"Unexpected '{someKey}' entry in TOML command file." )
+
+    return len(state.controlData) > 0
 # end of ScriptedBibleEditor.loadControlFile
 
 
@@ -374,7 +386,8 @@ def copyAuxilliaryESFMfiles( inputFolder:Path, outputFolder:Path, esfmFilelist:S
         inputFilepath = inputFolder.joinpath( filename )
         outputFilepath = outputFolder.joinpath( filename )
         dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"Copying ESFM auxilliary {inputFilepath} to {outputFilepath}…" )
-        shutil.copy2( inputFilepath, outputFilepath )
+        shutil.copy( inputFilepath, outputFilepath ) # Need to update the file creation time otherwise "make" doesn't function correctly
+        # shutil.copy2( inputFilepath, outputFilepath ) # copy2 copies the file attributes
     
     return len(esfmFilelist)
 # end of ScriptedBibleEditor.copyAuxilliaryESFMfiles
@@ -410,7 +423,8 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
             vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping excluded '{BBB}' book…" )
             continue
 
-        editFunction = executeRegexEditChunkCommand if 'w' in command.tags or command.preText or command.postText \
+        editFunction = executeRegexEditChunkCommand \
+                        if 'w' in command.tags or command.preText or command.postText or '¦' in command.searchText \
                         else executeEditChunkCommand
 
         if not command.iMarkers and not command.eMarkers and not command.iRefs and not command.eRefs:
@@ -596,7 +610,7 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
 
 
 def escape_backslash( regex:str ) -> str:
-    return regex.replace('\\','\\\\')
+    return regex.replace('\\','\\\\') # Replace single backslash char (as in USFM) with two backslash chars for RegEx
 
 def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> str:
     """
@@ -609,7 +623,13 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
     fnPrint( DEBUGGING_THIS_MODULE, f"executeRegexEditChunkCommand( {where}, {len(inputText)}, {command} )" )
     adjustedText = inputText
 
-    myRegexSearchString = f'({escape_backslash(command.searchText)})'
+    wordLinkRegexString = '¦[1-9][0-9]{0,5}'
+    searchBrokenPipeCount = command.searchText.count( '¦')
+    if searchBrokenPipeCount:
+        myRegexSearchString = command.searchText.replace( '¦', wordLinkRegexString )
+        myRegexSearchString = f'({escape_backslash(myRegexSearchString)})'
+    else: # relatively straight forward
+        myRegexSearchString = f'({escape_backslash(command.searchText)})'
     myRegexReplaceString = f'Rx-{escape_backslash(command.replaceText)}-Rx' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else escape_backslash(command.replaceText)
     if command.preText:
         # myRegexSearchString = f'({command.preText}){myRegexSearchString}'
@@ -633,12 +653,59 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
             myRegexSearchString = f'{myRegexSearchString}\\b'
     compiledSearchRegex = re.compile( myRegexSearchString )
 
-    while True:
-        adjustedText, numReplacements = compiledSearchRegex.subn( myRegexReplaceString, adjustedText )
-        if numReplacements:
-            # dPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' ({myRegexSearchString}) with '{command.replaceText}' ({myRegexReplaceString}) {where}" )
-            vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' with '{command.replaceText}' {where}" )
-        if numReplacements==0 or 'l' not in command.tags: break
+    if searchBrokenPipeCount: # More work with word link numbers in this case
+        # if len(inputText) < 500: print( f"{inputText=}" )
+        # print( f"{where=} {myRegexSearchString=}" )
+        # if '\\' in myRegexReplaceString:
+        #     print( f"({len(command.searchText)}) {command.searchText=} ({len(myRegexSearchString)}) {myRegexSearchString=}" )
+        #     print( f"({len(command.replaceText)}) {command.replaceText=} ({len(myRegexReplaceString)}) {myRegexReplaceString=}" )
+        searchStartIndex = numReplacements = 0
+        originalMyRegexReplaceString = myRegexReplaceString
+        while True:
+            match = compiledSearchRegex.search( adjustedText, searchStartIndex )
+            if not match:
+                break
+            # print( f"{searchStartIndex}/{len(adjustedText)} {numReplacements=} {match=}" )
+            # print( f"guts='{adjustedText[match.start()-10:match.end()+10]}'" )
+            # print( f"({len(match.groups())}) {match.groups()=}" )
+            assert len(match.groups()) == 1 \
+            or ('w' in command.tags and len(match.groups())==2 and (match.group(2) is None or match.group(1) is None)), \
+                f"{len(match.groups())} {match=} {myRegexSearchString=} {match.groups()}"
+            wordWithNumber = match.group(1)
+            if len(match.groups())==2 and match.group(1) is None:
+                assert match.group(2) is not None
+                wordWithNumber = match.group(2)
+            # foundMatchBeginning, foundMatchEnd = match.group(1).split( '¦', 1 )
+            # print( f"{foundMatchBeginning=} {foundMatchEnd=}" )
+            # assert foundMatchEnd.isdigit() # Should be the wordlink number FAILS because there might be a suffix, e.g., '˱of¦2˲'
+            replaceBrokenPipeCount = myRegexReplaceString.count( '¦')
+            # print( f"'{myRegexReplaceString}' {replaceBrokenPipeCount=}" )
+            if replaceBrokenPipeCount:
+                if searchBrokenPipeCount==1:
+                    wordLinkMatch = re.search( wordLinkRegexString, wordWithNumber )
+                    wordLinkNumber = wordLinkMatch.group(0)[1:] # After the broken pipe character
+                    # print( f"{wordLinkNumber=}" )
+                    assert wordLinkNumber.isdigit()
+                    myRegexReplaceString = originalMyRegexReplaceString.replace( '¦', f'¦{wordLinkNumber}' ) \
+                                                                       .replace( '\\\\', '\\' ) # Because we're NOT actually using a RegEx replace here
+                else: # have 2 or more broken pipes in search
+                    not_done
+            else: # replaceBrokenPipeCount == 0
+                # That means that we have to remove the digits
+                pass
+            adjustedText = f'{adjustedText[:match.start()]}{myRegexReplaceString}{adjustedText[match.end():]}'
+            numReplacements += 1
+            # if numReplacements > 3: halt
+            searchStartIndex = match.end()
+            # if len(adjustedText) < 500: print( f"{adjustedText=}" )
+            # elif searchStartIndex < 500: print( f"{adjustedText[:searchStartIndex]=}" )
+    else: # searchBrokenPipeCount == 0
+        while True:
+            adjustedText, numReplacements = compiledSearchRegex.subn( myRegexReplaceString, adjustedText )
+            if numReplacements:
+                # dPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' ({myRegexSearchString}) with '{command.replaceText}' ({myRegexReplaceString}) {where}" )
+                vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"      Replaced {numReplacements} whole word instances of '{command.searchText}' with '{command.replaceText}' {where}" )
+            if numReplacements==0 or 'l' not in command.tags: break
 
     return adjustedText
 # end of ScriptedBibleEditor.executeRegexEditChunkCommand
