@@ -51,10 +51,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2023-03-16' # by RJH
+LAST_MODIFIED_DATE = '2023-05-29' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.28'
+PROGRAM_VERSION = '0.29'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -317,7 +317,9 @@ def executeEditsOnAllFiles() -> bool:
                 extractESFMTableNames( inputFilename, inputText, esfmFilelist )
                 appliedText = executeEdits( BBB, inputText, state.commandTables )
                 if appliedText != inputText: # Make a backup before overwriting the input file
-                    appliedText = appliedText.replace( '\n\\h ', f"\n\\rem USFM file edited {datetime.now().strftime('%Y-%m-%d %H:%M')} by {PROGRAM_NAME_VERSION}\n\\h " )
+                    # Putting the conversion date/time into the output file doesn't work well with Git
+                    # appliedText = appliedText.replace( '\n\\h ', f"\n\\rem USFM file edited {datetime.now().strftime('%Y-%m-%d %H:%M')} by {PROGRAM_NAME_VERSION}\n\\h " )
+                    appliedText = appliedText.replace( '\n\\h ', f"\n\\rem USFM file edited by {PROGRAM_NAME_VERSION}\n\\h " )
                     outputFilepath = os.path.join( outputFolder, outputFilename )
                     if outputFilepath == inputFilename:
                         BibleOrgSysGlobals.backupAnyExistingFile( inputFilename, numBackups=3 )
