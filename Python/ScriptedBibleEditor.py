@@ -31,6 +31,7 @@ Updates:
     2023-03-06 To use new Python tomllib (which parses binary files) so only works now in Python3.11 and above
     2023-03-07 To copy TSV tables across to the output for ESFM projects
     2023-03-08 To handle ESFM ¦nnn word-link numbers
+    2023-09-13 Now handles multiple words in search/replace (but can't reorder them)
 """
 from gettext import gettext as _
 from typing import Dict, List, Set, NamedTuple, Tuple, Optional
@@ -51,10 +52,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2023-05-29' # by RJH
+LAST_MODIFIED_DATE = '2023-09-13' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.29'
+PROGRAM_VERSION = '0.30'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -628,7 +629,7 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
     fnPrint( DEBUGGING_THIS_MODULE, f"executeRegexEditChunkCommand( {where}, {len(inputText)}, {command} )" )
     adjustedText = inputText
     
-    searchBrokenPipeCount = command.searchText.count( '¦')
+    searchBrokenPipeCount = command.searchText.count( '¦' )
     if searchBrokenPipeCount: # have ESFM wordlink numbers (appended to the end of words)
         myRegexSearchString = command.searchText.replace( '¦', wordLinkRegexString )
         myRegexSearchString = f'({escape_backslash(myRegexSearchString)})'
@@ -682,35 +683,58 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
             # foundMatchBeginning, foundMatchEnd = match.group(1).split( '¦', 1 )
             # print( f"{foundMatchBeginning=} {foundMatchEnd=}" )
             # assert foundMatchEnd.isdigit() # Should be the wordlink number FAILS because there might be a suffix, e.g., '˱of¦2˲'
-            replaceBrokenPipeCount = myRegexReplaceString.count( '¦')
+            replaceBrokenPipeCount = myRegexReplaceString.count( '¦' )
             # print( f"{wordOrWordsWithNumbers} '{myRegexReplaceString}' {replaceBrokenPipeCount=}" )
             if replaceBrokenPipeCount:
-                if searchBrokenPipeCount==1:
+                if searchBrokenPipeCount==1: # we have one broken pipe char in both search and replace
                     wordLinkMatch = wordLinkRegex.search( wordOrWordsWithNumbers )
                     wordLinkNumberStr = wordLinkMatch.group(0)[1:] # After the broken pipe character
                     # print( f"{wordLinkNumber=}" )
                     assert wordLinkNumberStr.isdigit()
                     myRegexReplaceString = originalMyRegexReplaceString.replace( '¦', f'¦{wordLinkNumberStr}' ) \
                                                                        .replace( '\\\\', '\\' ) # Because we're NOT actually using a RegEx replace here
-                else: # have 2 or more broken pipes in search
+                else: # have 2 or more broken pipes in search (and at least one in replace)
                     # print( f"SBE: {wordOrWordsWithNumbers} '{myRegexReplaceString}' {replaceBrokenPipeCount=}" )
                     # These words could have different wordlink numbers or all be the same wordLink Number
-                    wordLinkNumberStrings = set()
+                    wordLinkNumberStringsList, wordLinkNumberStringsSet = [], set()
                     for wordLinkMatch in wordLinkRegex.finditer( wordOrWordsWithNumbers ):
                         wordLinkNumberStr = wordLinkMatch.group(0)[1:] # After the broken pipe character
                         # print( f"{wordLinkNumber=}" )
                         assert wordLinkNumberStr.isdigit()
-                        wordLinkNumberStrings.add( wordLinkNumberStr )
+                        wordLinkNumberStringsList.append( wordLinkNumberStr )
+                        wordLinkNumberStringsSet.add( wordLinkNumberStr )
+                    orderedWordLinkNumberStringsSet = sorted( wordLinkNumberStringsSet )
                     # print( f"SBE: Found {len(wordLinkNumberStrings)} wordlink number: {wordLinkNumberStrings}")
-                    if len(wordLinkNumberStrings) == 1:
-                        myRegexReplaceString = originalMyRegexReplaceString.replace( '¦', f'¦{wordLinkNumberStrings.pop()}' ) \
+                    if len(wordLinkNumberStringsSet) == 1:
+                        myRegexReplaceString = originalMyRegexReplaceString.replace( '¦', f'¦{wordLinkNumberStringsSet.pop()}' ) \
                                                                            .replace( '\\\\', '\\' ) # Because we're NOT actually using a RegEx replace here
                         # print( f"{myRegexReplaceString=}" )
-                    else:
-                        not_written_for_multiple_found_word_numbers_yet
+                    else: # more than one word number in the found set
+                        # Individually do the word number replacements for each word in the found string
+                        # Note that this code cannot REORDER words
+                        dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"      {myRegexSearchString=} {originalMyRegexReplaceString=} {wordLinkNumberStringsSet=} {wordLinkNumberStringsList=} {orderedWordLinkNumberStringsSet=} {wordOrWordsWithNumbers=} {where}" )
+                        searchWords = myRegexSearchString.split( ' ' )
+                        replaceWords = originalMyRegexReplaceString.split( ' ' )
+                        foundWords = wordOrWordsWithNumbers.split( ' ' )
+                        numWords = len(searchWords)
+                        assert numWords >= 2 # More than one word
+                        assert numWords == len(replaceWords) == len(foundWords) == len(orderedWordLinkNumberStringsSet) # Same number of words
+                        replacedWords = []
+                        for searchWord,replaceWord,foundWord, wordNumber in zip( searchWords, replaceWords, foundWords, orderedWordLinkNumberStringsSet, strict=True ):
+                            # Do each individual find/replace
+                            dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"{searchWord=} {foundWord=} {replaceWord=} {wordNumber=}")
+                            assert wordNumber in foundWord
+                            assert '¦' in foundWord
+                            assert '¦' in replaceWord
+                            replacedWord = replaceWord.replace( '¦', f'¦{wordNumber}' )
+                            replacedWords.append( replacedWord )
+                        # dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"{replacedWords=}" )
+                        myRegexReplaceString = ' '.join(replacedWords)
+                        dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"{replacedWords=} {myRegexReplaceString=} {where}" )
+
             else: # replaceBrokenPipeCount == 0
                 # That means that we have to remove the digits
-                pass
+                not_written_for_removing_word_number_yet
             adjustedText = f'{adjustedText[:match.start()]}{myRegexReplaceString}{adjustedText[match.end():]}'
             numReplacements += 1
             # if numReplacements > 3: halt
@@ -718,6 +742,7 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
             # if len(adjustedText) < 500: print( f"{adjustedText=}" )
             # elif searchStartIndex < 500: print( f"{adjustedText[:searchStartIndex]=}" )
     else: # searchBrokenPipeCount == 0
+        assert '¦' not in myRegexReplaceString
         while True:
             adjustedText, numReplacements = compiledSearchRegex.subn( myRegexReplaceString, adjustedText )
             if numReplacements:
