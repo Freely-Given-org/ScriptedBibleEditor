@@ -5,7 +5,7 @@
 #
 # Module handling ScriptedBibleEditor functions
 #
-# Copyright (C) 2022-2023 Robert Hunt
+# Copyright (C) 2022-2024 Robert Hunt
 # Author: Robert Hunt <Freely.Given.org+BOS@gmail.com>
 # License: See gpl-3.0.txt
 #
@@ -52,10 +52,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2023-09-13' # by RJH
+LAST_MODIFIED_DATE = '2024-03-25' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.30'
+PROGRAM_VERSION = '0.31'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -738,7 +738,7 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
             adjustedText = f'{adjustedText[:match.start()]}{myRegexReplaceString}{adjustedText[match.end():]}'
             numReplacements += 1
             # if numReplacements > 3: halt
-            searchStartIndex = match.end()
+            searchStartIndex = match.start() + len(myRegexReplaceString)
             # if len(adjustedText) < 500: print( f"{adjustedText=}" )
             # elif searchStartIndex < 500: print( f"{adjustedText[:searchStartIndex]=}" )
     else: # searchBrokenPipeCount == 0
