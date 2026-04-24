@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 # -*- coding: utf-8 -*-
 #
 # ScriptedBibleEditor.py
 #
 # Module handling ScriptedBibleEditor functions
 #
-# Copyright (C) 2022-2024 Robert Hunt
+# Copyright (C) 2022-2026 Robert Hunt
 # Author: Robert Hunt <Freely.Given.org+BOS@gmail.com>
 # License: See gpl-3.0.txt
 #
@@ -32,6 +32,9 @@ Updates:
     2023-03-07 To copy TSV tables across to the output for ESFM projects
     2023-03-08 To handle ESFM ¦nnn word-link numbers
     2023-09-13 Now handles multiple words in search/replace (but can't reorder them)
+    2025-09-18 Raise some errors for missing files and adjusted verbosity down a bit, fixed USFM regex bugs, check for valid tags
+    2025-03-05 Allow word number to be removed in the replacement
+    2026-03-06 Escape parenthesis in a regex search string, i.e., any that include a word number
 """
 from gettext import gettext as _
 from typing import Dict, List, Set, NamedTuple, Tuple, Optional
@@ -52,10 +55,10 @@ sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitt
 from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2024-03-25' # by RJH
+LAST_MODIFIED_DATE = '2026-03-06' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.31'
+PROGRAM_VERSION = '0.35'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -88,6 +91,14 @@ class EditCommand(NamedTuple):
     name: str           # 13
     comment: str        # 14
 
+    def __repr__( self ) -> str:
+        return f'''Command: {f'tags={self.tags}, ' if self.tags else ''}{f'iBooks={self.iBooks}, ' if self.iBooks else ''}{f'eBooks={self.eBooks}, ' if self.eBooks else ''}{f'iMarkers={self.iMarkers}, ' if self.iMarkers else ''}{f'eMarkers={self.eMarkers}, ' if self.eMarkers else ''}{f'iRefs={self.iRefs}, ' if self.iRefs else ''}{f'eRefs={self.eRefs}, ' if self.eRefs else ''}{f'preText={self.preText}, ' if self.preText else ''}{f'sCase={self.sCase}, ' if self.sCase else ''}{f'searchText={self.searchText}, ' if self.searchText else ''}{f'postText={self.postText}, ' if self.postText else ''}{f'rCase={self.rCase}, ' if self.rCase else ''}{f'replaceText={self.replaceText}, ' if self.replaceText else ''}{f'name={self.name}, ' if self.name else ''}{f'comment={self.comment}, ' if self.comment else ''}'''
+# end of EditCommand class
+
+class EditCommands(list):
+    def __repr__( self ) -> str:
+        return f'''{len(self):,} Commands:\n{'\n'.join([f'  {n} {command}' for n,command in enumerate(self, start=1)])}'''
+# end of EditCommands class
 
 class State:
     def __init__( self ) -> None:
@@ -140,7 +151,7 @@ def findControlFile():
 
     for filepath in searchPaths:
         if os.path.isfile(filepath):
-            vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"  Loaded control file from {filepath}" )
+            vPrint( 'Info', DEBUGGING_THIS_MODULE, f"  Found control file at {filepath}" )
             return filepath
 
     logging.critical( f"No control file found in {searchPaths}." )
@@ -153,7 +164,7 @@ def loadControlFile( filepath ) -> bool:
     fnPrint( DEBUGGING_THIS_MODULE, f"loadControlFile( {filepath} )")
 
     state.controlFolderpath = os.path.dirname( filepath )
-    vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"Loading control file: {filepath}…" )
+    vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"  Loading TOML control file at {filepath}…" )
     with open(filepath, 'rb') as controlFile:
         state.controlData = tomllib.load( controlFile )
         displayTitle = f"'{state.controlData['title']}'" \
@@ -189,9 +200,9 @@ def loadCommandTables() -> bool:
         for name, givenFilepath in state.controlData['commandTables'].items():
             completeFilepath = os.path.join( state.controlFolderpath, givenFilepath )
             if os.path.isfile(completeFilepath):
-                vPrint( 'Info', DEBUGGING_THIS_MODULE, f"  Loading command table file: {completeFilepath}…" )
+                vPrint( 'Info', DEBUGGING_THIS_MODULE, f"  Loading TSV command table file: {completeFilepath}…" )
                 assert name not in state.commandTables
-                state.commandTables[name] = []
+                state.commandTables[name] = EditCommands()
                 with open( completeFilepath, 'rt', encoding='utf-8' ) as commandTableFile:
                     line_number = 0
                     for line in commandTableFile:
@@ -203,7 +214,7 @@ def loadCommandTables() -> bool:
                             line += '\t' * (COMMAND_TABLE_NUM_COLUMNS - 1 - tab_count) # Add back the empty columns
                             tab_count = line.count( '\t' )
                         if tab_count != (COMMAND_TABLE_NUM_COLUMNS - 1):
-                            logging.critical( f"Skipping line {line_number} which contains {tab_count} tabs (instead of {COMMAND_TABLE_NUM_COLUMNS - 1})" )
+                            logging.critical( f"Skipping '{name}' line {line_number} which contains {tab_count} tabs (instead of {COMMAND_TABLE_NUM_COLUMNS - 1}): {line=}" )
                         if line == COMMAND_HEADER_LINE:
                             continue # as no need to save this
 
@@ -213,22 +224,40 @@ def loadCommandTables() -> bool:
                         iBooks, eBooks = fields[1].split(',') if fields[1] else [], fields[2].split(',') if fields[2] else []
                         iMarkers, eMarkers = fields[3].split(',') if fields[3] else [], fields[4].split(',') if fields[4] else []
                         iRefs, eRefs = fields[5].split(',') if fields[5] else [], fields[6].split(',') if fields[6] else []
+                        extraTags = tags.replace('w','').replace('d','').replace('H','').replace('G','').replace('l','')
+                        assert not extraTags, f"Extra tags are '{extraTags}' in {name} (Allowed tags are 'wdHGl')"
                         for iBook in iBooks:
                             assert iBook in BibleOrgSysGlobals.loadedBibleBooksCodes, iBook
                         for eBook in eBooks:
                             assert eBook in BibleOrgSysGlobals.loadedBibleBooksCodes, eBook
-                        for iRef in iRefs:
-                            assert iRef.count('_')==1 and iRef.count(':')==1, iRef
+                        for iRef in iRefs.copy(): # coz we might add more to the list
+                            assert iRef.count('_')==1 and iRef.count(':') in (0,1), iRef # A chapter ref has no colon
                             iRefBits = iRef.split('_')
                             assert iRefBits[0] in BibleOrgSysGlobals.loadedBibleBooksCodes, iRef
-                            iRefC, iRefV = iRefBits[1].split(':')
-                            assert iRefC[0].isdigit() and iRefV[0].isdigit(), iRef
-                        for eRef in eRefs:
-                            assert eRef.count('_')==1 and eRef.count(':')==1, eRef
+                            try:
+                                iRefC, iRefV = iRefBits[1].split(':')
+                                assert iRefC[0].isdigit() and iRefV[0].isdigit(), iRef
+                            except ValueError: # no colon
+                                iRefC = iRefBits[1]
+                                assert iRefC.isdigit(), iRef
+                                # We don't know how many verses in this chapter, so we'll just do 150
+                                for vv in range( 1, 150+1 ):
+                                    iRefs.append( f'{iRef}:{vv}' ) # Append an iref for each verse in the chapter
+                            assert int(iRefC) <= BibleOrgSysGlobals.loadedBibleBooksCodes.getMaxChapters( iRefBits[0] ), iRef
+                        for eRef in eRefs.copy(): # coz we might add more to the list
+                            assert eRef.count('_')==1 and eRef.count(':') in (0,1), eRef # A chapter ref has no colon
                             eRefBits = eRef.split('_')
                             assert eRefBits[0] in BibleOrgSysGlobals.loadedBibleBooksCodes, eRef
-                            eRefC, eRefV = eRefBits[1].split(':')
-                            assert eRefC[0].isdigit() and eRefV[0].isdigit(), eRef
+                            try:
+                                eRefC, eRefV = eRefBits[1].split(':')
+                                assert eRefC[0].isdigit() and eRefV[0].isdigit(), eRef
+                            except ValueError: # no colon
+                                eRefC = eRefBits[1]
+                                assert eRefC.isdigit(), eRef
+                                # We don't know how many verses in this chapter, so we'll just do 150
+                                for vv in range( 1, 150+1 ):
+                                    eRefs.append( f'{eRef}:{vv}' ) # Append an eref for each verse in the chapter
+                            assert int(eRefC) <= BibleOrgSysGlobals.loadedBibleBooksCodes.getMaxChapters( eRefBits[0] ), eRef
 
                         # Adjust and save the fields
                         if 'H' in tags:
@@ -253,11 +282,11 @@ def loadCommandTables() -> bool:
                                 iBooks, eBooks, iMarkers, eMarkers, iRefs, eRefs,
                                 fields[7], fields[8], searchText, fields[10], fields[11],
                                 f'R‹{replaceText}›R' if BibleOrgSysGlobals.commandLineArguments.flagReplacements and BibleOrgSysGlobals.verbosityLevel>2 else replaceText, fields[13], fields[14] ) )
-                vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"    Loaded {len(state.commandTables[name])} command{'' if len(state.commandTables[name])==1 else 's'} for '{name}'." )
-            else: vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"      '{completeFilepath}' is not a file!" )
+                vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"      Loaded {len(state.commandTables[name])} command{'' if len(state.commandTables[name])==1 else 's'} for '{name}' TSV." )
+            else: raise FileNotFoundError(f"      '{completeFilepath}' is not a file")
         return True
     else:
-        vPrint("No command tables available to load")
+        raise FileNotFoundError("No command tables available to load")
     return False
 # end of ScriptedBibleEditor.loadCommandTables
 
@@ -280,7 +309,8 @@ def executeEditsOnAllFiles() -> bool:
         vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"No files found in input folder: {inputFolder}" )
         return False
     numTables = len( state.commandTables )
-    vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"\nApplying edits from {numTables} table{'' if numTables==1 else 's'} to {inputCount} file{'' if inputCount==1 else 's'} in {inputFolder}" )
+    numCommands = sum(len(command) for command in state.commandTables)
+    vPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"\nApplying {numCommands:,} total edits from {numTables} table{'' if numTables==1 else 's'} to {inputCount} file{'' if inputCount==1 else 's'} in {inputFolder}" )
 
     outputFolder = os.path.join( state.controlFolderpath, state.controlData['outputFolder'] )
     if state.controlData['clearOutputFolder'] == True:
@@ -324,7 +354,7 @@ def executeEditsOnAllFiles() -> bool:
                     outputFilepath = os.path.join( outputFolder, outputFilename )
                     if outputFilepath == inputFilename:
                         BibleOrgSysGlobals.backupAnyExistingFile( inputFilename, numBackups=3 )
-                    vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"    Writing {len(appliedText):,} characters (was {len(inputText):,}) to {outputFilename}…" )
+                    vPrint( 'Normal', DEBUGGING_THIS_MODULE, f"      Writing {len(appliedText):,} characters (was {len(inputText):,}) to {outputFilename}…" )
                     with open( outputFilepath, 'wt', encoding='utf-8' ) as outputFile:
                         outputFile.write(appliedText)
                     numFilesWritten += 1
@@ -404,27 +434,31 @@ def executeEdits( BBB:str, inputText:str, commandTables ) -> str:
     appliedText = inputText
 
     for commandTableName, commands in commandTables.items():
-        vPrint( 'Info', DEBUGGING_THIS_MODULE, f"    Applying {commandTableName}…" )
-        appliedText = executeEditCommands( BBB, appliedText, commands )
+        vPrint( 'Info', DEBUGGING_THIS_MODULE, f"    Applying {len(commands)} commands from {commandTableName}…" )
+        appliedText = executeEditCommands( BBB, appliedText, commandTableName, commands )
 
     return appliedText
 # end of ScriptedBibleEditor.executeEdits
 
 
-def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
+def executeEditCommands( BBB:str, inputText:str, commandTableName:str, commands ) -> str:
     """
     Returns the adjusted text with the command(s) applied
     """
-    fnPrint( DEBUGGING_THIS_MODULE, f"executeEditCommands( {BBB}, {len(inputText)}, {len(commands)} )" )
+    fnPrint( DEBUGGING_THIS_MODULE, f"executeEditCommands( {BBB}, {len(inputText)}, {commandTableName} {len(commands)} )" )
     adjustedText = inputText
 
     for command in commands:
-        if BBB in command.iBooks:
-            assert BBB not in command.eBooks
+        if command.iBooks:
+            if BBB in command.iBooks:
+                assert BBB not in command.eBooks
+            else:
+                vPrint( 'Info', DEBUGGING_THIS_MODULE, f"      Skipping non-included '{BBB}' book for {command}…" )
+                continue # Don't execute this command
         if BBB in command.eBooks:
             assert BBB not in command.iBooks
-            vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping excluded '{BBB}' book…" )
-            continue
+            vPrint( 'Info', DEBUGGING_THIS_MODULE, f"      Skipping excluded '{BBB}' book for {command}…" )
+            continue # Don't execute this command
 
         editFunction = executeRegexEditChunkCommand \
                         if 'w' in command.tags or command.preText or command.postText or '¦' in command.searchText \
@@ -432,7 +466,7 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
 
         if not command.iMarkers and not command.eMarkers and not command.iRefs and not command.eRefs:
             # Then it's easier -- don't care about USFM structure
-            adjustedText = editFunction( BBB, adjustedText, command )
+            adjustedText = editFunction( BBB, adjustedText, commandTableName, command )
         else: # need to parse USFM by line
             dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"Need to parse USFM by line to apply {command}!" )
             newLines = []
@@ -480,7 +514,7 @@ def executeEditCommands( BBB:str, inputText:str, commands ) -> str:
                     vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    Skipping not included '{BCVRef}' reference…" )
                     continue
                 # If we get here, we need to process the USFM field
-                newLines.append( editFunction( f'{BCVRef}~{marker}', line, command ) )
+                newLines.append( editFunction( f'{BCVRef}~{marker}', line, commandTableName, command ) )
             adjustedText = '\n'.join( newLines )
 
     return adjustedText
@@ -534,13 +568,13 @@ def splitUSFMMarkerFromText( line:str ) -> Tuple[Optional[str],str]:
 
 
 STANDARD_DISTANCE = 2500 # 3JN USFM is about 2,300 chars, LUK is about 175,000 chars, MAT 1 is about 3,500 chars.
-def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> str:
+def executeEditChunkCommand( where:str, inputText:str, commandTableName:str, command:EditCommand ) -> str:
     """
     Assumes we're in the right field.
 
     Loops or delays as necessary.
     """
-    fnPrint( DEBUGGING_THIS_MODULE, f"executeEditChunkCommand( {where}, {len(inputText)}, {command} )" )
+    fnPrint( DEBUGGING_THIS_MODULE, f"executeEditChunkCommand( {where}, {len(inputText)}, {commandTableName}, {command} )" )
     assert not command.preText and not command.postText and 'w' not in command.tags
     adjustedText = inputText
 
@@ -587,7 +621,7 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
                     adjustedText = f'{adjustedText[:adjustedIndex]}{shortReplaceText}{adjustedText[adjustedIndex+searchLength:]}'
                     offset += len(shortReplaceText) - len(command.searchText)
                     numShortReplacesDone += 1
-            dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"  Did {numFullReplacesDone:,} full replaces and {numShortReplacesDone:,} short replaces of '{command.searchText}'" )
+            dPrint( 'Info', DEBUGGING_THIS_MODULE, f"  Did {numFullReplacesDone:,} full replaces and {numShortReplacesDone:,} short replaces of '{command.searchText}'" )
             assert numFullReplacesDone + numShortReplacesDone == sourceCount
             # if command.searchText=='Jesus': halt
         else: # no 'd' (or text chunk is too short anyway) so we're just normal
@@ -606,19 +640,21 @@ def executeEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> 
         vPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"    No instances of {command.searchText!r} in {where}!" )
 
     # if 'd' in command.tags and sourceCount>1 and len(adjustedText) > STANDARD_DISTANCE and command.searchText=='Jesus':
-    #     # print(adjustedText)
+    #     # print(adjustedText)xx
     #     halt
     return adjustedText
 # end of ScriptedBibleEditor.executeEditChunkCommand
 
 
-def escape_backslash( regex:str ) -> str:
+def escape_USFM_Regex_search_string( regex:str ) -> str:
+    return regex.replace('\\','\\\\').replace('*','[*]').replace('+','[+]').replace('(','[(]').replace(')','[)]') # Replace single backslash char (as in USFM) with two backslash chars for RegEx
+def escape_USFM_Regex_replace_string( regex:str ) -> str:
     return regex.replace('\\','\\\\') # Replace single backslash char (as in USFM) with two backslash chars for RegEx
 
 
 wordLinkRegexString = '¦[1-9][0-9]{0,5}'
 wordLinkRegex = re.compile( wordLinkRegexString )
-def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand ) -> str:
+def executeRegexEditChunkCommand( where:str, inputText:str, commandTableName:str, command:EditCommand ) -> str:
     """
     Assumes we're in the right text field.
 
@@ -626,27 +662,28 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
 
     Checks previous and following text as necessary.
     """
-    fnPrint( DEBUGGING_THIS_MODULE, f"executeRegexEditChunkCommand( {where}, {len(inputText)}, {command} )" )
+    # DEBUGGING_THIS_MODULE = 99 if '(diy)' in command.searchText and 'diy' in inputText else False
+    fnPrint( DEBUGGING_THIS_MODULE, f"executeRegexEditChunkCommand( {where}, {len(inputText)}, {commandTableName}, {command} )" )
     adjustedText = inputText
     
     searchBrokenPipeCount = command.searchText.count( '¦' )
     if searchBrokenPipeCount: # have ESFM wordlink numbers (appended to the end of words)
         myRegexSearchString = command.searchText.replace( '¦', wordLinkRegexString )
-        myRegexSearchString = f'({escape_backslash(myRegexSearchString)})'
+        myRegexSearchString = f'({escape_USFM_Regex_search_string(myRegexSearchString)})'
     else: # relatively straight forward without ESFM wordlink numbers
-        myRegexSearchString = f'({escape_backslash(command.searchText)})'
-    myRegexReplaceString = f'Rx-{escape_backslash(command.replaceText)}-Rx' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else escape_backslash(command.replaceText)
+        myRegexSearchString = f'({escape_USFM_Regex_search_string(command.searchText)})'
+    myRegexReplaceString = f'Rx-{escape_USFM_Regex_replace_string(command.replaceText)}-Rx' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else escape_USFM_Regex_replace_string(command.replaceText)
     if command.preText:
         # myRegexSearchString = f'({command.preText}){myRegexSearchString}'
         # myRegexReplaceString = f'\\1{myRegexReplaceString}'
-        myRegexSearchString = f'(?{escape_backslash(command.preText)}){myRegexSearchString}'
+        myRegexSearchString = f'(?{escape_USFM_Regex_search_string(command.preText)}){myRegexSearchString}'
         dPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"Have PRE TEXT '{command.preText}' before '{myRegexSearchString}'" )
     elif 'w' in command.tags: # search after a word break -- matches after \b or after _
         myRegexSearchString = f'\\b{myRegexSearchString}|(?<=_){myRegexSearchString}'
     if command.postText:
         # myRegexSearchString = f'{myRegexSearchString}({command.postText})'
         # myRegexReplaceString = f'{myRegexReplaceString}\\3'
-        myRegexSearchString = f'{myRegexSearchString}(?{escape_backslash(command.postText)})'
+        myRegexSearchString = f'{myRegexSearchString}(?{escape_USFM_Regex_search_string(command.postText)})'
         dPrint( 'Quiet', DEBUGGING_THIS_MODULE, f"Have POST TEXT '{command.postText}' after '{myRegexSearchString}'" )
     elif 'w' in command.tags:
         if '|(?<=_)' in myRegexSearchString:
@@ -656,25 +693,27 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
             myRegexSearchString = '|(?<=_)'.join(bits)
         else:
             myRegexSearchString = f'{myRegexSearchString}\\b'
+    dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"Adjusted {myRegexSearchString=}" )
     compiledSearchRegex = re.compile( myRegexSearchString )
 
     if searchBrokenPipeCount: # More work with word link numbers in this case
         # if len(inputText) < 500: print( f"{inputText=}" )
-        # print( f"{where=} {myRegexSearchString=}" )
+        # dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"{where=} {myRegexSearchString=}" )
         # if '\\' in myRegexReplaceString:
-        # print( f"({len(command.searchText)}) {command.searchText=} ({len(myRegexSearchString)}) {myRegexSearchString=}" )
-        # print( f"({len(command.replaceText)}) {command.replaceText=} ({len(myRegexReplaceString)}) {myRegexReplaceString=}" )
+        #     dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"({len(command.searchText)}) {command.searchText=} ({len(myRegexSearchString)}) {myRegexSearchString=}" )
+        #     dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"({len(command.replaceText)}) {command.replaceText=} ({len(myRegexReplaceString)}) {myRegexReplaceString=}" )
         searchStartIndex = numReplacements = 0
         originalMyRegexReplaceString = myRegexReplaceString
         while True:
             match = compiledSearchRegex.search( adjustedText, searchStartIndex )
             if not match:
                 break
-            # print( f"{searchStartIndex}/{len(adjustedText)} {numReplacements=} {match=}" )
-            # print( f"guts='{adjustedText[match.start()-10:match.end()+10]}'" )
-            # print( f"({len(match.groups())}) {match.groups()=}" )
+            # dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"AAA {searchStartIndex}/{len(adjustedText)} {numReplacements=} {match=}" )
+            # dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"BBB guts='{adjustedText[match.start()-10:match.end()+10]}'" )
+            # dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"CCC ({len(match.groups())}) {match.groups()=}" )
             assert len(match.groups()) == 1 \
-            or ('w' in command.tags and len(match.groups())==2 and (match.group(2) is None or match.group(1) is None)), \
+            or ('w' in command.tags and len(match.groups())==2 and (match.group(2) is None or match.group(1) is None)) \
+            or match.group(1).startswith( f'{match.group(2)}¦' ), \
                 f"{len(match.groups())} {match=} {myRegexSearchString=} {match.groups()}"
             wordOrWordsWithNumbers = match.group(1)
             if len(match.groups())==2 and match.group(1) is None:
@@ -712,17 +751,17 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
                     else: # more than one word number in the found set
                         # Individually do the word number replacements for each word in the found string
                         # Note that this code cannot REORDER words
-                        dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"      {myRegexSearchString=} {originalMyRegexReplaceString=} {wordLinkNumberStringsSet=} {wordLinkNumberStringsList=} {orderedWordLinkNumberStringsSet=} {wordOrWordsWithNumbers=} {where}" )
+                        dPrint( 'Info', DEBUGGING_THIS_MODULE, f"      {myRegexSearchString=} {originalMyRegexReplaceString=} {wordLinkNumberStringsSet=} {wordLinkNumberStringsList=} {orderedWordLinkNumberStringsSet=} {wordOrWordsWithNumbers=} {where}" )
                         searchWords = myRegexSearchString.split( ' ' )
                         replaceWords = originalMyRegexReplaceString.split( ' ' )
                         foundWords = wordOrWordsWithNumbers.split( ' ' )
                         numWords = len(searchWords)
                         assert numWords >= 2 # More than one word
-                        assert numWords == len(replaceWords) == len(foundWords) == len(orderedWordLinkNumberStringsSet) # Same number of words
+                        assert numWords == len(replaceWords) == len(foundWords) == len(orderedWordLinkNumberStringsSet), f"{commandTableName} {command=} {numWords=} {len(replaceWords)=} {len(foundWords)=} {len(orderedWordLinkNumberStringsSet)=}" # Current code only works for same number of words
                         replacedWords = []
                         for searchWord,replaceWord,foundWord, wordNumber in zip( searchWords, replaceWords, foundWords, orderedWordLinkNumberStringsSet, strict=True ):
                             # Do each individual find/replace
-                            dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"{searchWord=} {foundWord=} {replaceWord=} {wordNumber=}")
+                            dPrint( 'Info', DEBUGGING_THIS_MODULE, f"{searchWord=} {foundWord=} {replaceWord=} {wordNumber=}")
                             assert wordNumber in foundWord
                             assert '¦' in foundWord
                             assert '¦' in replaceWord
@@ -730,11 +769,14 @@ def executeRegexEditChunkCommand( where:str, inputText:str, command:EditCommand 
                             replacedWords.append( replacedWord )
                         # dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"{replacedWords=}" )
                         myRegexReplaceString = ' '.join(replacedWords)
-                        dPrint( 'Normal', DEBUGGING_THIS_MODULE, f"{replacedWords=} {myRegexReplaceString=} {where}" )
+                        dPrint( 'Info', DEBUGGING_THIS_MODULE, f"  executeRegexEditChunkCommand {replacedWords=} {myRegexReplaceString=} {where}" )
 
             else: # replaceBrokenPipeCount == 0
-                # That means that we have to remove the digits
-                not_written_for_removing_word_number_yet
+                # That means that we have to remove the word number digits (and the preceding ¦)
+                # dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"RemoveAAA {searchStartIndex}/{len(adjustedText)} {numReplacements=} {match=}" )
+                # dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"RemoveBBB guts='{adjustedText[match.start()-10:match.end()+10]}'" )
+                # dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"RemoveCCC ({len(match.groups())}) {match.groups()=}" )
+                dPrint( 'Verbose', DEBUGGING_THIS_MODULE, f"  Removing word number by replacing {match.group(1)=} with {myRegexReplaceString=}" )
             adjustedText = f'{adjustedText[:match.start()]}{myRegexReplaceString}{adjustedText[match.end():]}'
             numReplacements += 1
             # if numReplacements > 3: halt
