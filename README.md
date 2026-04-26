@@ -36,7 +36,30 @@ which can specify the file extensions, whether or not backup files or folders ar
 
 ## Command line parameters
 
-(to be written)
+usage: ScriptedBibleEditor.py [-h] [--version] [-f] [-s | -q | -i | -v] [-e | -w] [-d] [-1] [-c] controlPath
+
+ScriptedBibleEditor v0.35 last modified 2026-03-06
+
+positional arguments:
+  controlPath        path of ScriptedBibleEditor.control.toml
+
+options:
+  -h, --help         show this help message and exit
+  --version          show program's version number and exit
+  -f, --flag         flag where replacements were made
+  -1, --single       don't use multiprocessing (that's the digit one)
+  -c, --strict       perform very strict checking of all input
+
+Verbosity Group:
+  Console verbosity controls
+
+  -s, --silent       output no information to the console
+  -q, --quiet        output less information to the console
+  -i, --informative  output more information to the console
+  -v, --verbose      output lots of information for the user
+  -e, --errors       log errors to console
+  -w, --warnings     log warnings and errors to console
+  -d, --debug        output even more information for the programmer/debugger
 
 ## Rust plans
 
