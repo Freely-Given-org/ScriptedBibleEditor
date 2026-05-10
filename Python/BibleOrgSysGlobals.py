@@ -84,6 +84,9 @@ Contains functions:
     closedown( PROGRAM_NAME, PROGRAM_VERSION )
 
     fullDemo()
+
+CHANGELOG:
+    2026-05-09 Upgraded to bos_books_codes_py
 """
 from gettext import gettext as _
 from typing import List, Tuple, Optional, Union
@@ -103,15 +106,15 @@ except ImportError:
     pwd = None
     import getpass
 
-if __name__ == '__main__':
-    aboveFolderpath = os.path.dirname( os.path.dirname( os.path.abspath( __file__ ) ) )
-    if aboveFolderpath not in sys.path:
-        sys.path.insert( 0, aboveFolderpath )
-assert os.path.isdir( '../../BibleOrgSys/' )
-sys.path.insert( 0, '../../BibleOrgSys/' )
+# if __name__ == '__main__':
+#     aboveFolderpath = os.path.dirname( os.path.dirname( os.path.abspath( __file__ ) ) )
+#     if aboveFolderpath not in sys.path:
+#         sys.path.insert( 0, aboveFolderpath )
+# assert os.path.isdir( '../../BibleOrgSys/' )
+# sys.path.insert( 0, '../../BibleOrgSys/' )
 
 
-LAST_MODIFIED_DATE = '2022-06-30' # by RJH
+LAST_MODIFIED_DATE = '2026-05-09' # by RJH
 SHORT_PROGRAM_NAME = "BibleOrgSysGlobals"
 PROGRAM_NAME = "BibleOrgSys (BOS) Globals"
 PROGRAM_VERSION = '0.89'
@@ -1461,7 +1464,6 @@ def setStrictCheckingFlag( newValue=True ):
 
 
 # Some global variables
-loadedBibleBooksCodes:Optional[List[str]] = None
 loadedUSFMMarkers:Optional[List[str]] = None
 USFMParagraphMarkers:Optional[List[str]] = None
 USFMCharacterMarkers:Optional[List[str]] = None
@@ -1474,11 +1476,7 @@ def preloadCommonData() -> None:
         This includes BibleBooksCode and USFMMarkers
     """
     # Load Bible data sets that are globally useful
-    global loadedBibleBooksCodes, loadedUSFMMarkers, USFMParagraphMarkers, USFMCharacterMarkers, USFMAllExpandedCharacterMarkers, internal_SFMs_to_remove
-
-    from BibleOrgSys.Reference.BibleBooksCodes import BibleBooksCodes
-    loadedBibleBooksCodes = BibleBooksCodes().loadData()
-    assert len(loadedBibleBooksCodes) >= 243
+    global loadedUSFMMarkers, USFMParagraphMarkers, USFMCharacterMarkers, USFMAllExpandedCharacterMarkers, internal_SFMs_to_remove
 
     from BibleOrgSys.Reference.USFM3Markers import USFM3Markers
     loadedUSFMMarkers = USFM3Markers().loadData()

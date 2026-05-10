@@ -27,7 +27,7 @@ Module handling ScriptedBibleEditor functions.
 
 TODO: Need to allow parameters to be specified on the command line
 
-Updates:
+CHANGELOG:
     2023-03-06 To use new Python tomllib (which parses binary files) so only works now in Python3.11 and above
     2023-03-07 To copy TSV tables across to the output for ESFM projects
     2023-03-08 To handle ESFM ¦nnn word-link numbers
@@ -35,6 +35,7 @@ Updates:
     2025-09-18 Raise some errors for missing files and adjusted verbosity down a bit, fixed USFM regex bugs, check for valid tags
     2025-03-05 Allow word number to be removed in the replacement
     2026-03-06 Escape parenthesis in a regex search string, i.e., any that include a word number
+    2026-05-09 Upgraded to bos_books_codes_py
 """
 from gettext import gettext as _
 from typing import Dict, List, Set, NamedTuple, Tuple, Optional
@@ -49,6 +50,7 @@ import unicodedata
 
 import BibleOrgSysGlobals
 from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
+import bos_books_codes_py
 
 import sys
 sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitted to PyPI
@@ -227,13 +229,13 @@ def loadCommandTables() -> bool:
                         extraTags = tags.replace('w','').replace('d','').replace('H','').replace('G','').replace('l','')
                         assert not extraTags, f"Extra tags are '{extraTags}' in {name} (Allowed tags are 'wdHGl')"
                         for iBook in iBooks:
-                            assert iBook in BibleOrgSysGlobals.loadedBibleBooksCodes, iBook
+                            assert bos_books_codes_py.is_valid_reference_abbreviation( iBook ), iBook
                         for eBook in eBooks:
-                            assert eBook in BibleOrgSysGlobals.loadedBibleBooksCodes, eBook
+                            assert bos_books_codes_py.is_valid_reference_abbreviation( eBook ), eBook
                         for iRef in iRefs.copy(): # coz we might add more to the list
                             assert iRef.count('_')==1 and iRef.count(':') in (0,1), iRef # A chapter ref has no colon
                             iRefBits = iRef.split('_')
-                            assert iRefBits[0] in BibleOrgSysGlobals.loadedBibleBooksCodes, iRef
+                            assert bos_books_codes_py.is_valid_reference_abbreviation( iRefBits[0] ), iRef
                             try:
                                 iRefC, iRefV = iRefBits[1].split(':')
                                 assert iRefC[0].isdigit() and iRefV[0].isdigit(), iRef
@@ -243,11 +245,11 @@ def loadCommandTables() -> bool:
                                 # We don't know how many verses in this chapter, so we'll just do 150
                                 for vv in range( 1, 150+1 ):
                                     iRefs.append( f'{iRef}:{vv}' ) # Append an iref for each verse in the chapter
-                            assert int(iRefC) <= BibleOrgSysGlobals.loadedBibleBooksCodes.getMaxChapters( iRefBits[0] ), iRef
+                            assert int(iRefC) <= bos_books_codes_py.get_max_chapters( iRefBits[0] ), iRef
                         for eRef in eRefs.copy(): # coz we might add more to the list
                             assert eRef.count('_')==1 and eRef.count(':') in (0,1), eRef # A chapter ref has no colon
                             eRefBits = eRef.split('_')
-                            assert eRefBits[0] in BibleOrgSysGlobals.loadedBibleBooksCodes, eRef
+                            assert bos_books_codes_py.is_valid_reference_abbreviation( eRefBits[0] ), eRef
                             try:
                                 eRefC, eRefV = eRefBits[1].split(':')
                                 assert eRefC[0].isdigit() and eRefV[0].isdigit(), eRef
@@ -257,7 +259,7 @@ def loadCommandTables() -> bool:
                                 # We don't know how many verses in this chapter, so we'll just do 150
                                 for vv in range( 1, 150+1 ):
                                     eRefs.append( f'{eRef}:{vv}' ) # Append an eref for each verse in the chapter
-                            assert int(eRefC) <= BibleOrgSysGlobals.loadedBibleBooksCodes.getMaxChapters( eRefBits[0] ), eRef
+                            assert int(eRefC) <= bos_books_codes_py.get_max_chapters( eRefBits[0] ), eRef
 
                         # Adjust and save the fields
                         if 'H' in tags:
@@ -330,8 +332,8 @@ def executeEditsOnAllFiles() -> bool:
     numFilesWritten = 0
     if applyOrder == 'AllTablesFirst':
         esfmFilelist = set()
-        for BBB in BibleOrgSysGlobals.loadedBibleBooksCodes:
-            UUU = BibleOrgSysGlobals.loadedBibleBooksCodes.getUSFMAbbreviation( BBB ) or ''
+        for BBB in bos_books_codes_py.get_all_reference_abbreviations():
+            UUU = bos_books_codes_py.reference_abbrev_to_usfm_abbrev( BBB ) or ''
             inputFilename = state.controlData['inputFilenameTemplate'] \
                                     .replace( 'BBB', BBB ).replace( 'UUU', UUU.upper() )
             try:
