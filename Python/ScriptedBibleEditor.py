@@ -229,13 +229,13 @@ def loadCommandTables() -> bool:
                         extraTags = tags.replace('w','').replace('d','').replace('H','').replace('G','').replace('l','')
                         assert not extraTags, f"Extra tags are '{extraTags}' in {name} (Allowed tags are 'wdHGl')"
                         for iBook in iBooks:
-                            assert bos_books_codes_py.is_valid_reference_abbreviation( iBook ), iBook
+                            assert bos_books_codes_py.is_valid_bos_book_code( iBook ), iBook
                         for eBook in eBooks:
-                            assert bos_books_codes_py.is_valid_reference_abbreviation( eBook ), eBook
+                            assert bos_books_codes_py.is_valid_bos_book_code( eBook ), eBook
                         for iRef in iRefs.copy(): # coz we might add more to the list
                             assert iRef.count('_')==1 and iRef.count(':') in (0,1), iRef # A chapter ref has no colon
                             iRefBits = iRef.split('_')
-                            assert bos_books_codes_py.is_valid_reference_abbreviation( iRefBits[0] ), iRef
+                            assert bos_books_codes_py.is_valid_bos_book_code( iRefBits[0] ), iRef
                             try:
                                 iRefC, iRefV = iRefBits[1].split(':')
                                 assert iRefC[0].isdigit() and iRefV[0].isdigit(), iRef
@@ -249,7 +249,7 @@ def loadCommandTables() -> bool:
                         for eRef in eRefs.copy(): # coz we might add more to the list
                             assert eRef.count('_')==1 and eRef.count(':') in (0,1), eRef # A chapter ref has no colon
                             eRefBits = eRef.split('_')
-                            assert bos_books_codes_py.is_valid_reference_abbreviation( eRefBits[0] ), eRef
+                            assert bos_books_codes_py.is_valid_bos_book_code( eRefBits[0] ), eRef
                             try:
                                 eRefC, eRefV = eRefBits[1].split(':')
                                 assert eRefC[0].isdigit() and eRefV[0].isdigit(), eRef
@@ -332,8 +332,8 @@ def executeEditsOnAllFiles() -> bool:
     numFilesWritten = 0
     if applyOrder == 'AllTablesFirst':
         esfmFilelist = set()
-        for BBB in bos_books_codes_py.get_all_reference_abbreviations():
-            UUU = bos_books_codes_py.reference_abbrev_to_usfm_abbrev( BBB ) or ''
+        for BBB in bos_books_codes_py.get_all_bos_book_codes():
+            UUU = bos_books_codes_py.bos_book_code_to_usfm_abbrev( BBB ) or ''
             inputFilename = state.controlData['inputFilenameTemplate'] \
                                     .replace( 'BBB', BBB ).replace( 'UUU', UUU.upper() )
             try:

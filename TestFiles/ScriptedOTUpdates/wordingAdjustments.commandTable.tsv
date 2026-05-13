@@ -1,0 +1,80 @@
+Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+# Fix joined words -- not sure why these are necessary (is it from Clear.Bible glosses???)
+									toanger			to_anger
+									todeath			to_death
+									intounfaithfulness			into_unfaithfulness
+
+# Our word substitutions
+									Anointed|Christ			Christ		Matt 1:16 -- gets replaced again below
+									Messiah			Christ		Matt 1:17 -- gets replaced again below
+
+									Abba			Father		Gal 4:6 Aramaic that wasn't translated
+									Amen			Truly		Rev 19:4
+									angel			messenger		Jdg 6:11
+w									ark			box		1Chr 15:24 Use w/word flag so it doesn't mess with words containing ark
+									baptize			immerse
+									baptizing			immersing
+									baptism			immersion
+									be_cast			be_thrown		Matt 18:8
+									behold			see
+									Behold,			See		Matt 21:4
+									casts			throws		Matt 17:19
+									cast himself			threw himself		John 21:7 (cast can be present or past!)
+									being/_cast			being/_thrown		Matt 3:10 (cast can be present or past!)
+									cast			throw		Matt 17:19 (cast can be present or past!)
+									Cherubim			heavenly_beings		Heb 9:5 (plural)
+									commandment			command		Psa 119:6 (plural)
+									desert			wilderness		Jhn 1:23
+									Devil			false_accuser		Rev 12:9
+					MAT_28:19				disciple			train_followers		Matt 28:19 verb
+									disciples			apprentices/followers
+									disciple			apprentice/follower
+w									forsake			abandon
+									forsaken			abandoned
+									forsaking			abandoning		1 Sam 8:8
+									forsook			abandoned
+#									glory			what?????		Matt 16:27 How do we handle this????
+									gnashing			grating		Matt 22:13 or "grinding, biting"? What about "chattering"???
+									Hail			Greetings		Matt 26:29
+H									Hallelujah			Praise_יָהּ		Rev 19:3
+									Hosanna			Blessed_saviour		Matt 21:9 Lit. "save now"! Can this be improved further?
+									legion			army_division		Matt 26:53 6,100 + 726 = 6,826, also gets the plural
+									Legion			Many_thousands		Mrk 5:9 as a name
+									loosed			untied/released		Matt 16:19
+									loosen			untie/release		Isa 58:6
+									looses			unties/releases		Matt 16:19
+									loose			untie/release		Matt 16:19
+									Lord			master
+									lord			master		1 Pet 3:6
+w									magi			wise_men
+									millstone¦			grinding¦_stone¦		Matt 18:6
+w									O			Oh
+									psalm			song
+									, Rabbi¦			, my¦_great¦_\add >one¦\add*
+									Rabbi¦			My¦_great¦_\add >one¦\add*
+									statute			regulation		Psa 119:8 (plural)
+									Tabernacle			tent		John 7:2 also works for plural
+#dG									talents¦			τάλαντονs¦_\add of¦_silver¦\add*		Matt 25:25
+#dG									talent¦			τάλαντον¦_\add of¦_silver¦\add*		Matt 25:25
+									testimony			transcript		Exo 31:8 (used for the two stone tablets)
+									Unleavened			non-fermented
+									a word with			a w_o_r_d with		Protect UHB footnote segment (none of these words have attached word numbers)
+									single word in			single w_o_r_d in		Protect UHB footnote segment (none of these words have attached word numbers)
+									this word divided			this w_o_r_d divided		Protect UHB footnote segment (none of these words have attached word numbers)
+									word-medial			w_o_r_d-medial		Protect UHB footnote segment (none of these words have attached word numbers)
+w									word			message
+w									words			words/messages
+									w_o_r_d			word		Restore protected word
+									wrath¦			severe¦_anger¦
+
+# Currency
+H									kesitahs¦			קְשִׂיטָה¦_\add silver¦_coins¦\add*		Gen 33:19, Job 24:32, 42:11
+
+# Weights and measures
+#wdGH									baths¦			בַּת¦_\add measures¦\add*		Luke 16:6
+#wG									choenix¦			χοῖνιξ¦_\add measure¦\add*		Rev 6:6
+wdH									cors¦			כֹּר¦_\add measures¦\add*		2 Chr. 2:9, (Luke 16:7)
+#GH						CO1_9:24			stadium¦			στάδιον¦_\add measure¦\add*		Luke 24:13 one eighth of a Roman mile
+
+# Fixing case
+									arabia			Arabia		Eze 30:5
