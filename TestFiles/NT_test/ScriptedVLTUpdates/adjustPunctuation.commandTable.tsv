@@ -1,0 +1,27 @@
+Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+					JHN_9:3				.			,	replaceJhn9Period	Replace period at end of verse with comma
+					JHN_9:3				but			But	startJhn9Sentence	Capitalise after period
+					JHN_9:3				˱of¦˲_him¦,			˱of¦˲_him¦.\f + \fr 9:3 \ft Traditionally, most translations have placed a comma here (which is also a good possibility—remember that the original Greek manuscripts contain no punctuation), but this interpretation is equally valid and perhaps gives a more acceptable interpretation.\f*	replaceJhn9Comma	Replace first comma with period and footnote
+					JHN_9:4				˱It¦˲_is¦_fitting¦			˱it¦˲_is¦_fitting¦	continueJhn9Sentence	Remove capital after comma
+					JHN_10:14				.			,	replaceJhn10Period	Replace period with comma
+					JHN_10:15				As			as	removeJhn10Capital	Remove capital letter
+
+#l									  			 	removeDoubleSpaces	Remove double spaces in entire file
+
+				rem					!			.	replaceExclamationMark	Replace interpretive exclamation mark with period
+# We need to sort out obvious questions (e.g., with question words) vs statements interpreted as questions
+#				rem					?			.	replaceQuestionMark	Replace interpretive question mark with period
+				rem					;			,	replaceDash	Replace interpretive semicolon with comma
+				rem					–			,	replaceDash	Replace interpretive dash with comma
+
+									, “			: 	replaceDoubleOpenQuote	Replace open double quote with colon
+									”				removeDoubleCloseQuote	Remove double close quote
+									, ‘			: 	replaceSingleOpenQuote	Replace open single quote with colon
+									’				removeSingleCloseQuote	Remove single close quote
+
+				rem					“				removeDoubleOpenQuote	Remove any remaining double open quotes
+				rem					‘				removeSingleOpenQuote	Remove any remaining single open quotes
+
+				rem					¶				removePilcrow	Remove any interpretive paragraph markers
+
+l									  			 	removeDoubleSpaces	Remove double spaces in entire file

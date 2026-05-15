@@ -4,6 +4,7 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use indexmap::IndexMap;
+use rayon::prelude::*;
 use serde::Deserialize;
 use std::collections::HashSet;
 use std::fs;
@@ -12,7 +13,7 @@ use std::path::{Path, PathBuf};
 use bos_books_codes::get_all_bos_book_codes;
 
 const PROGRAM_NAME: &str = "Scripted Bible Editor";
-const PROGRAM_VERSION: &str = "0.35-rust";
+const PROGRAM_VERSION: &str = env!("CARGO_PKG_VERSION");
 const SHORT_PROGRAM_NAME: &str = "ScriptedBibleEditor";
 
 #[derive(Parser, Debug)]
@@ -112,7 +113,7 @@ fn main() -> Result<()> {
     else if args.verbose { verbose = 4; }
     if args.debug { verbose = 5; }
 
-    if verbose > 1 {
+    if verbose > 0 {
         println!("{} v{}", PROGRAM_NAME, PROGRAM_VERSION);
     }
 
@@ -130,7 +131,7 @@ fn main() -> Result<()> {
     let control_content = fs::read_to_string(&control_filepath)?;
     let control_data: ControlData = toml::from_str(&control_content)?;
 
-    if verbose > 1 {
+    if verbose > 0 {
         println!("  Loading TOML control file at {:?}...", control_filepath);
         if let Some(title) = &control_data.title {
             println!("    Loaded parameters from '{}'.", title);
@@ -148,7 +149,7 @@ fn main() -> Result<()> {
     load_command_tables(&mut state)?;
     execute_edits_on_all_files(&state)?;
 
-    if verbose > 1 {
+    if verbose > 0 {
         println!("{} v{} finished.", PROGRAM_NAME, PROGRAM_VERSION);
     }
     Ok(())
@@ -157,7 +158,7 @@ fn main() -> Result<()> {
 fn load_command_tables(state: &mut State) -> Result<()> {
     for (name, given_filepath) in &state.control_data.command_tables {
         let complete_filepath = state.control_folderpath.join(given_filepath);
-        if state.verbose > 2 {
+        if state.verbose > 1 {
             println!("  Loading TSV command table file: {:?}...", complete_filepath);
         }
 
@@ -318,41 +319,52 @@ fn execute_edits_on_all_files(state: &State) -> Result<()> {
         }
     }
 
-    let mut num_files_written = 0;
-    let mut esfm_filelist = HashSet::new();
     let abbreviations = get_all_bos_book_codes();
 
-    for bbb in abbreviations {
-        let uuu = bos_books_codes::bos_book_code_to_usfm_abbrev(&bbb).ok().flatten().unwrap_or("").to_uppercase();
-        let input_filename = state.control_data.input_filename_template
-            .replace("BBB", &bbb)
-            .replace("UUU", &uuu);
-        
-        let output_filename = state.control_data.output_filename_template.as_ref()
-            .map(|t| t.replace("BBB", &bbb).replace("UUU", &uuu))
-            .unwrap_or_else(|| input_filename.clone());
-
-        let input_filepath = input_folder.join(&input_filename);
-        if input_filepath.is_file() {
-            if state.verbose > 2 {
-                println!("  Processing {}...", input_filename);
-            }
-            let input_text = fs::read_to_string(&input_filepath)?;
+    let results: Vec<(usize, HashSet<String>)> = abbreviations.into_par_iter()
+        .map(|bbb| -> Result<(usize, HashSet<String>)> {
+            let mut local_written = 0;
+            let mut local_esfm_list = HashSet::new();
             
-            extract_esfm_table_names(&input_filename, &input_text, &mut esfm_filelist);
+            let uuu = bos_books_codes::bos_book_code_to_usfm_abbrev(&bbb).ok().flatten().unwrap_or("").to_uppercase();
+            let input_filename = state.control_data.input_filename_template
+                .replace("BBB", &bbb)
+                .replace("UUU", &uuu);
             
-            let applied_text = execute_edits(&bbb, &input_text, state)?;
+            let output_filename = state.control_data.output_filename_template.as_ref()
+                .map(|t| t.replace("BBB", &bbb).replace("UUU", &uuu))
+                .unwrap_or_else(|| input_filename.clone());
 
-            if applied_text != input_text {
-                let mut final_text = applied_text;
-                let rem_line = format!("\n\\rem USFM file edited by {} v{}\n\\h ", PROGRAM_NAME, PROGRAM_VERSION);
-                final_text = final_text.replace("\n\\h ", &rem_line);
+            let input_filepath = input_folder.join(&input_filename);
+            if input_filepath.is_file() {
+                if state.verbose > 1 {
+                    println!("  Processing {}...", input_filename);
+                }
+                let input_text = fs::read_to_string(&input_filepath)?;
+                
+                extract_esfm_table_names(&input_filename, &input_text, &mut local_esfm_list);
+                
+                let applied_text = execute_edits(&bbb, &input_text, state)?;
 
-                let output_filepath = output_folder.join(&output_filename);
-                fs::write(output_filepath, final_text)?;
-                num_files_written += 1;
+                if applied_text != input_text {
+                    let mut final_text = applied_text;
+                    let rem_line = format!("\n\\rem USFM file edited by {} v{}\n\\h ", PROGRAM_NAME, PROGRAM_VERSION);
+                    final_text = final_text.replace("\n\\h ", &rem_line);
+
+                    let output_filepath = output_folder.join(&output_filename);
+                    fs::write(output_filepath, final_text)?;
+                    local_written = 1;
+                }
             }
-        }
+            Ok((local_written, local_esfm_list))
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    let mut num_files_written = 0;
+    let mut esfm_filelist = HashSet::new();
+    for (count, list) in results {
+        num_files_written += count;
+        esfm_filelist.extend(list);
     }
 
     if !esfm_filelist.is_empty() {
@@ -386,7 +398,7 @@ fn copy_auxiliary_esfm_files(input_folder: &Path, output_folder: &Path, esfm_fil
         let input_path = input_folder.join(filename);
         let output_path = output_folder.join(filename);
         if input_path.exists() {
-            if state.verbose > 1 {
+            if state.verbose > 0 {
                 println!("Copying ESFM auxiliary {:?} to {:?}...", input_path, output_path);
             }
             fs::copy(&input_path, &output_path)?;
@@ -399,7 +411,7 @@ fn copy_auxiliary_esfm_files(input_folder: &Path, output_folder: &Path, esfm_fil
 fn execute_edits(bbb: &str, input_text: &str, state: &State) -> Result<String> {
     let mut applied_text = input_text.to_string();
     for (name, commands) in &state.command_tables {
-        if state.verbose > 2 {
+        if state.verbose > 1 {
             println!("    Applying {} commands from {}...", commands.len(), name);
         }
         applied_text = execute_edit_commands(bbb, &applied_text, commands, state)?;
@@ -432,9 +444,14 @@ fn execute_edit_commands(bbb: &str, input_text: &str, commands: &[EditCommand], 
             let mut v = "-1".to_string();
             let mut last_marker: Option<String> = None;
 
-            for line in adjusted_text.lines() {
+            for line in adjusted_text.split('\n') {
                 if c == "-1" {
                     v = (v.parse::<i32>().unwrap_or(0) + 1).to_string();
+                }
+                let line = line.trim_end_matches('\r');
+                if line.is_empty() {
+                    new_lines.push(line.to_string());
+                    continue;
                 }
                 
                 let (marker, text) = split_usfm_marker_from_text(line);
@@ -644,9 +661,14 @@ fn execute_regex_edit_chunk_command(where_str: &str, input_text: &str, command: 
                     final_replace = final_replace.replace('¦', wl_nums[0]);
                 } else {
                     // Sequential replacement of ¦ placeholders
+                    let mut start_search = 0;
                     for num in wl_nums {
-                        if let Some(pos) = final_replace.find('¦') {
-                            final_replace.replace_range(pos..pos+'¦'.len_utf8(), num);
+                        if let Some(pos) = final_replace[start_search..].find('¦') {
+                            let absolute_pos = start_search + pos;
+                            final_replace.replace_range(absolute_pos..absolute_pos + '¦'.len_utf8(), num);
+                            start_search = absolute_pos + num.len();
+                        } else {
+                            break; // No more ¦ to replace
                         }
                     }
                 }
@@ -676,9 +698,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_hag_transliteration() -> Result<()> {
+    fn test_hag_heb_edits_with_transliteration() -> Result<()> {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let test_files_dir = root.join("../../../ScriptedBibleEditor/TestFiles").canonicalize()?;
+        let test_files_dir = root.join("../../../ScriptedBibleEditor/TestFiles/OT_test/").canonicalize()?;
         let control_path = test_files_dir.join("ScriptedOTUpdates/ScriptedBibleEditor.control.toml");
         
         let control_content = fs::read_to_string(&control_path)?;
@@ -723,6 +745,60 @@ mod tests {
         }
         
         assert_eq!(actual_lines.len(), expected_lines.len(), "File length mismatch");
+        assert_eq!(actual_content.ends_with('\n'), expected_content.ends_with('\n'), "Trailing newline mismatch");
+        
+        Ok(())
+    }
+
+    #[test]
+    fn test_mrk_grk_edits_with_transliteration() -> Result<()> {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let test_files_dir = root.join("../../../ScriptedBibleEditor/TestFiles/NT_test/").canonicalize()?;
+        let control_path = test_files_dir.join("ScriptedVLTUpdates/ScriptedBibleEditor.control.toml");
+        
+        let control_content = fs::read_to_string(&control_path)?;
+        let mut control_data: ControlData = toml::from_str(&control_content)?;
+        
+        // Ensure output folder exists
+        let output_folder = test_files_dir.join("newTestOutput");
+        if !output_folder.exists() {
+            fs::create_dir_all(&output_folder)?;
+        }
+        
+        // Override control data to point to the correct test files
+        control_data.input_folder = "../".to_string();
+        control_data.output_folder = "../newTestOutput/".to_string();
+        
+        let mut state = State {
+            control_data,
+            control_folderpath: control_path.parent().unwrap().to_path_buf(),
+            command_tables: IndexMap::new(),
+            flag_replacements: false,
+            verbose: 0,
+        };
+
+        load_command_tables(&mut state)?;
+        execute_edits_on_all_files(&state)?;
+        
+        let actual_path = output_folder.join("OET-LV_MRK.ESFM");
+        let actual_content = fs::read_to_string(actual_path)?;
+        
+        let expected_path = test_files_dir.join("OET-LV_MRK.ESFM");
+        let expected_content = fs::read_to_string(expected_path)?;
+        
+        let actual_lines: Vec<&str> = actual_content.lines().collect();
+        let expected_lines: Vec<&str> = expected_content.lines().collect();
+        
+        // Compare lines, ignoring line 9 (version number)
+        for (i, (actual, expected)) in actual_lines.iter().zip(expected_lines.iter()).enumerate() {
+            let line_num = i + 1;
+            if line_num == 8 { continue; }
+            
+            assert_eq!(actual.trim(), expected.trim(), "Mismatch at line {}", line_num);
+        }
+        
+        assert_eq!(actual_lines.len(), expected_lines.len(), "File length mismatch");
+        assert_eq!(actual_content.ends_with('\n'), expected_content.ends_with('\n'), "Trailing newline mismatch");
         
         Ok(())
     }

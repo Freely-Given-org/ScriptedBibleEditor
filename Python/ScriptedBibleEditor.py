@@ -35,7 +35,8 @@ CHANGELOG:
     2025-09-18 Raise some errors for missing files and adjusted verbosity down a bit, fixed USFM regex bugs, check for valid tags
     2025-03-05 Allow word number to be removed in the replacement
     2026-03-06 Escape parenthesis in a regex search string, i.e., any that include a word number
-    2026-05-09 Upgraded to bos_books_codes_py
+    2026-05-09 Upgraded to Rust bos_books_codes_py
+    2026-05-14 Upgraded to Rust bible_transliterations
 """
 from gettext import gettext as _
 from typing import Dict, List, Set, NamedTuple, Tuple, Optional
@@ -44,23 +45,20 @@ import os
 import shutil
 import tomllib
 import logging
-from datetime import datetime
+# from datetime import datetime
 import re
 import unicodedata
 
 import BibleOrgSysGlobals
 from BibleOrgSysGlobals import fnPrint, vPrint, dPrint
 import bos_books_codes_py
-
-import sys
-sys.path.insert( 0, '../../BibleTransliterations/Python/' ) # temp until submitted to PyPI
-from BibleTransliterations import load_transliteration_table, transliterate_Hebrew, transliterate_Greek
+from bible_transliterations import transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2026-03-06' # by RJH
+LAST_MODIFIED_DATE = '2026-05-14' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.35'
+PROGRAM_VERSION = '0.37'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -126,9 +124,6 @@ def main() -> None:
     state = State()
     if BibleOrgSysGlobals.commandLineArguments.flagReplacements:
         vPrint( 'Quiet', DEBUGGING_THIS_MODULE, "<<<<< LEAVE_REPLACEMENT_INDICATORS flag is enabled! (Maybe affect consecutive replacements) >>>>>" )
-
-    load_transliteration_table( 'Hebrew' )
-    load_transliteration_table( 'Greek' )
 
     if controlFilepath := findControlFile():
         if loadControlFile( controlFilepath ):
@@ -269,7 +264,7 @@ def loadCommandTables() -> bool:
                                 replaceText = f'H‹{newReplaceText}›H' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else newReplaceText
                             for char in replaceText:
                                 if 'HEBREW' in unicodedata.name(char):
-                                    logging.critical(f"Have some Hebrew left-overs in '{replaceText}'")
+                                    logging.critical(f"Have some Hebrew left-overs in '{replaceText}': {unicodedata.name(char)}")
                                     break
                         if 'G' in tags:
                             newReplaceText = transliterate_Greek( replaceText )
@@ -278,7 +273,7 @@ def loadCommandTables() -> bool:
                                 replaceText = f'G‹{newReplaceText}›G' if BibleOrgSysGlobals.commandLineArguments.flagReplacements else newReplaceText
                             for char in replaceText:
                                 if 'GREEK' in unicodedata.name(char):
-                                    logging.critical(f"Have some Greek left-overs in '{replaceText}'")
+                                    logging.critical(f"Have some Greek left-overs in '{replaceText}': {unicodedata.name(char)}")
                                     break
                         state.commandTables[name].append( EditCommand( tags,
                                 iBooks, eBooks, iMarkers, eMarkers, iRefs, eRefs,

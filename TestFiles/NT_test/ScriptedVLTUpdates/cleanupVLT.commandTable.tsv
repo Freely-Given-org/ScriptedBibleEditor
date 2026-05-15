@@ -1,0 +1,63 @@
+Tags	IBooks	EBooks	IMarkers	EMarkers	IRefs	ERefs	PreText	SCase	Search	PostText	RCase	Replace	Name	Comment
+
+# Remove inserted word indicators
+									_> 			_ 	removeInsert1Start	Remove indicator of start of inserted words (like "not") after pre
+									 <_			 _	removeInsert1End	Remove indicator of end of inserted words (like "not") after pre
+
+									_˱			_	removeInsert2uStart	Remove indicator of start of inserted words (like "you_all") on pre
+									 ˱			 	removeInsert2sStart	Remove indicator of start of inserted words (like "you_all") on pre
+									˲_			_	removeInsert2uEnd	Remove indicator of end of inserted words (like "you_all") on pre
+									˲ 			 	removeInsert2sEnd	Remove indicator of end of inserted words (like "you_all") on pre
+
+									_=> 			_ 	removeInsert3Start	Remove indicator of start of inserted words (like "not") after helper
+#									*_=> 			_ 	removeInsert3Start	Remove indicator of start of inserted words (like "not") after helper now \add ..\add*
+#									/_=> 			_ 	removeInsert3Start	Remove indicator of start of inserted words (like "not") after split helper
+									 <=_			 _	removeInsert3End	Remove indicator of end of inserted words (like "not") after helper
+
+#									\add*_			_\add*	moveUnderlineInsideAddEnd	Put underlines inside add markers
+
+#										NOTE: Some untranslated words have already been put back into OET-LV_NT_word_table.10columns.tsv by extract_VLT_NT_to_ESFM.py
+#											They will already be something like '¬the' or '¬of_the'
+									¬the¦			 \untr the¦\untr*	tagUnusedArticles	Mark untranslated Greek articles with this (non-standard USFM)
+									¬The¦			 \untr The¦\untr*	tagUnusedCapsArticles	Mark untranslated Greek articles with this (non-standard USFM)
+									¬which¦			 \untr which¦\untr*	tagUnusedRelativeArticles	Mark untranslated Greek articles with this (non-standard USFM)
+									¬Which¦			 \untr Which¦\untr*	tagUnusedCapsRelativeArticles	Mark untranslated Greek articles with this (non-standard USFM)
+#									¬of_the¦			 \untr of_the¦\untr*	tagUnusedGenitiveArticles	Mark untranslated Greek articles with this (non-standard USFM)
+#									¬to/from_the¦			 \untr to/from_the¦\untr*	tagUnusedDativeArticles	Mark untranslated Greek articles with this (non-standard USFM)
+									¬that¦			 \untr that¦\untr*	tagUnusedThat	Mark untranslated Greek words with this (non-standard USFM)
+									¬That¦			 \untr That¦\untr*	tagCapsUnusedThat	Mark untranslated Greek words with this (non-standard USFM)
+									¬if¦			 \untr if¦\untr*	tagUnusedConditionals	Mark untranslated Greek words with this (non-standard USFM)
+									¬wishfully¦			 \untr wishfully¦\untr*	tagUnusedOptatives	Mark untranslated Greek words with this (non-standard USFM)
+									¬not/lest¦			 \untr not/lest¦\untr*	tagUnusedWords	Mark untranslated Greek words with this (non-standard USFM)
+									¬or/than¦			 \untr or/than¦\untr*	tagUnusedWords	Mark untranslated Greek words with this (non-standard USFM)
+									¬who/which/what/that¦			 \untr who/which/what/that¦\untr*	tagUnusedWords	Mark untranslated Greek words with this (non-standard USFM)
+									¬no/not¦			 \untr no/not¦\untr*	tagUnusedNegatives	Mark untranslated Greek words with this (non-standard USFM)
+									¬down/against/according_to¦			 \untr down/against/according¦_to¦\untr*	tagUnusedWords	Mark untranslated Greek words with this (non-standard USFM)
+									¬and/both¦			 \untr and/both¦\untr*	tagUnusedConjunctions	Mark untranslated Greek words with this (non-standard USFM)
+									¬/anxiety/¦			 \untr /anxiety/¦\untr*	tagUnusedParticles	Mark untranslated Greek words with this (non-standard USFM)
+									¬neither/nor¦			 \untr neither/nor¦\untr*	tagUnusedWords	Mark untranslated Greek words with this (non-standard USFM)
+#									-¦			 \untr ¬¦XXXXXX\untr*	tagUnusedWords	SHOULDN'T EVER OCCUR Mark untranslated Greek words with this (non-standard USFM)
+
+# Punctuation and spaces
+#				id					 -¦ 			 	removeHyphenSpaces	Remove hyphen (untranslated article) surrounded by spaces
+#				id					-¦ 			 	removeHyphenSpace	Remove hyphen (untranslated article) followed by space
+#				id					 -¦			 	removeSpaceHyphen	Remove hyphen (untranslated article) preceded by space
+
+#l				id					_ 			_	removeUnderlineSpace	Remove space after underline (rejoins words)
+l									__			_	reduceDoubleUnderlines	Reduce double underlines in entire file
+l									  			 	reduceDoubleSpaces	Reduce double spaces in entire file
+
+#									__not 			_ not 	fixUnderlineBeforeNot	Fix a double underline before inserted words
+
+									_/_			_	fixUnknownPattern	Fix an unexplained pattern _/_left in Matt 18:12
+
+									Stone|Petros			Stone/Petros	replacePetrosPipe	John 1:42
+									Gazelle|Dorkas			Gazelle/Dorkas	replaceDorkasPipe	Acts 9:36
+
+# Reduce markers
+									\nd* \nd 			 	reduceNdMarkers	Consecutive nomina sacra like \nd Yaʸsous¦299\nd* \nd chosen¦300_one¦300/messiah¦300\nd* Matt 1:18
+
+# Some wording problems
+#  (these probably don't work anymore due to word numbers)
+									 the the_			 the 		Trailing space
+									 the these			 these
