@@ -37,6 +37,7 @@ CHANGELOG:
     2026-03-06 Escape parenthesis in a regex search string, i.e., any that include a word number
     2026-05-09 Upgraded to Rust bos_books_codes_py
     2026-05-14 Upgraded to Rust bible_transliterations
+    2026-05-16 Use insertSBEditorRemLine flag and dynamic extension for \rem line
 """
 from gettext import gettext as _
 from typing import Dict, List, Set, NamedTuple, Tuple, Optional
@@ -55,10 +56,10 @@ import bos_books_codes_py
 from bible_transliterations import transliterate_Hebrew, transliterate_Greek
 
 
-LAST_MODIFIED_DATE = '2026-05-14' # by RJH
+LAST_MODIFIED_DATE = '2026-05-17' # by RJH
 SHORT_PROGRAM_NAME = "ScriptedBibleEditor"
 PROGRAM_NAME = "Scripted Bible Editor"
-PROGRAM_VERSION = '0.37'
+PROGRAM_VERSION = '0.39'
 PROGRAM_NAME_VERSION = f'{SHORT_PROGRAM_NAME} v{PROGRAM_VERSION}'
 
 DEBUGGING_THIS_MODULE = False
@@ -177,7 +178,7 @@ def loadControlFile( filepath ) -> bool:
                             'inputFolder','inputFilenameTemplate',
                             'outputFolder','outputFilenameTemplate','clearOutputFolder','createOutputFolder',
                             'applyOrder', 'commandTables',
-                            'handleESFMWordNumbers'):
+                            'handleESFMWordNumbers', 'insertSBEditorRemLine'):
             logging.critical( f"Unexpected '{someKey}' entry in TOML command file." )
 
     return len(state.controlData) > 0
@@ -345,9 +346,12 @@ def executeEditsOnAllFiles() -> bool:
                 extractESFMTableNames( inputFilename, inputText, esfmFilelist )
                 appliedText = executeEdits( BBB, inputText, state.commandTables )
                 if appliedText != inputText: # Make a backup before overwriting the input file
-                    # Putting the conversion date/time into the output file doesn't work well with Git
-                    # appliedText = appliedText.replace( '\n\\h ', f"\n\\rem USFM file edited {datetime.now().strftime('%Y-%m-%d %H:%M')} by {PROGRAM_NAME_VERSION}\n\\h " )
-                    appliedText = appliedText.replace( '\n\\h ', f"\n\\rem USFM file edited by {PROGRAM_NAME_VERSION}\n\\h " )
+                    if state.controlData.get( 'insertSBEditorRemLine', False ):
+                        extension = os.path.splitext(outputFilename)[1][1:].upper() or "USFM"
+                        controlFolderName = os.path.basename(os.path.abspath(state.controlFolderpath))
+                        # Putting the conversion date/time into the output file doesn't work well with Git
+                        # appliedText = appliedText.replace( '\n\\h ', f"\n\\rem {extension} file edited {datetime.now().strftime('%Y-%m-%d %H:%M')} by {PROGRAM_NAME_VERSION} using {controlFolderName}\n\\h " )
+                        appliedText = appliedText.replace( '\n\\h ', f"\n\\rem {extension} file edited by {PROGRAM_NAME_VERSION} using {controlFolderName}\n\\h " )
                     outputFilepath = os.path.join( outputFolder, outputFilename )
                     if outputFilepath == inputFilename:
                         BibleOrgSysGlobals.backupAnyExistingFile( inputFilename, numBackups=3 )

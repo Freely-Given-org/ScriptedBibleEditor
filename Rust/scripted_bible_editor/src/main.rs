@@ -74,6 +74,8 @@ struct ControlData {
     _apply_order: Option<String>,
     #[serde(rename = "commandTables")]
     command_tables: IndexMap<String, String>,
+    #[serde(rename = "insertSBEditorRemLine", default)]
+    insert_sbeditor_rem_line: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -132,7 +134,7 @@ fn main() -> Result<()> {
     let control_data: ControlData = toml::from_str(&control_content)?;
 
     if verbose > 0 {
-        println!("  Loading TOML control file at {:?}...", control_filepath);
+        println!("  Loading TOML control file at {:?}…", control_filepath);
         if let Some(title) = &control_data.title {
             println!("    Loaded parameters from '{}'.", title);
         }
@@ -159,7 +161,7 @@ fn load_command_tables(state: &mut State) -> Result<()> {
     for (name, given_filepath) in &state.control_data.command_tables {
         let complete_filepath = state.control_folderpath.join(given_filepath);
         if state.verbose > 1 {
-            println!("  Loading TSV command table file: {:?}...", complete_filepath);
+            println!("  Loading TSV command table file: {:?}…", complete_filepath);
         }
 
         let mut commands = Vec::new();
@@ -319,6 +321,33 @@ fn execute_edits_on_all_files(state: &State) -> Result<()> {
         }
     }
 
+    let input_count = fs::read_dir(&input_folder)?
+        .filter_map(|res| res.ok())
+        .filter(|e| e.path().is_file())
+        .count();
+
+    if input_count < 1 {
+        if state.verbose > 0 {
+            println!("No files found in input folder: {:?}", input_folder);
+        }
+        return Ok(());
+    }
+
+    let num_tables = state.command_tables.len();
+    let num_commands: usize = state.command_tables.values().map(|v| v.len()).sum();
+
+    if state.verbose > 0 {
+        println!(
+            "\nApplying {} total edits from {} table{} to {} file{} in {:?}",
+            num_commands,
+            num_tables,
+            if num_tables == 1 { "" } else { "s" },
+            input_count,
+            if input_count == 1 { "" } else { "s" },
+            input_folder
+        );
+    }
+
     let abbreviations = get_all_bos_book_codes();
 
     let results: Vec<(usize, HashSet<String>)> = abbreviations.into_par_iter()
@@ -338,7 +367,7 @@ fn execute_edits_on_all_files(state: &State) -> Result<()> {
             let input_filepath = input_folder.join(&input_filename);
             if input_filepath.is_file() {
                 if state.verbose > 1 {
-                    println!("  Processing {}...", input_filename);
+                    println!("  Processing {}…", input_filename);
                 }
                 let input_text = fs::read_to_string(&input_filepath)?;
                 
@@ -348,8 +377,23 @@ fn execute_edits_on_all_files(state: &State) -> Result<()> {
 
                 if applied_text != input_text {
                     let mut final_text = applied_text;
-                    let rem_line = format!("\n\\rem USFM file edited by {} v{}\n\\h ", PROGRAM_NAME, PROGRAM_VERSION);
-                    final_text = final_text.replace("\n\\h ", &rem_line);
+                    if state.control_data.insert_sbeditor_rem_line {
+                        let extension = Path::new(&output_filename)
+                            .extension()
+                            .and_then(|s| s.to_str())
+                            .unwrap_or("USFM")
+                            .to_uppercase();
+                        let control_folder_name = state.control_folderpath.file_name()
+                            .and_then(|s| s.to_str())
+                            .map(|s| s.to_string())
+                            .unwrap_or_else(|| {
+                                std::env::current_dir().ok()
+                                    .and_then(|p| p.file_name().and_then(|s| s.to_str().map(|s| s.to_string())))
+                                    .unwrap_or_else(|| "unknown".to_string())
+                            });
+                        let rem_line = format!("\n\\rem {} file edited by {} v{} using {}\n\\h ", extension, SHORT_PROGRAM_NAME, PROGRAM_VERSION, control_folder_name);
+                        final_text = final_text.replace("\n\\h ", &rem_line);
+                    }
 
                     let output_filepath = output_folder.join(&output_filename);
                     fs::write(output_filepath, final_text)?;
@@ -399,7 +443,7 @@ fn copy_auxiliary_esfm_files(input_folder: &Path, output_folder: &Path, esfm_fil
         let output_path = output_folder.join(filename);
         if input_path.exists() {
             if state.verbose > 0 {
-                println!("Copying ESFM auxiliary {:?} to {:?}...", input_path, output_path);
+                println!("Copying ESFM auxiliary {:?} to {:?}…", input_path, output_path);
             }
             fs::copy(&input_path, &output_path)?;
             count += 1;
@@ -412,7 +456,7 @@ fn execute_edits(bbb: &str, input_text: &str, state: &State) -> Result<String> {
     let mut applied_text = input_text.to_string();
     for (name, commands) in &state.command_tables {
         if state.verbose > 1 {
-            println!("    Applying {} commands from {}...", commands.len(), name);
+            println!("    Applying {} commands from {}…", commands.len(), name);
         }
         applied_text = execute_edit_commands(bbb, &applied_text, commands, state)?;
     }
@@ -736,10 +780,11 @@ mod tests {
         let actual_lines: Vec<&str> = actual_content.lines().collect();
         let expected_lines: Vec<&str> = expected_content.lines().collect();
         
-        // Compare lines, ignoring line 9 (version number)
+        // Compare lines, ignoring the ScriptedBibleEditor \rem line if it was inserted
+        let rem_line_num = if state.control_data.insert_sbeditor_rem_line { 9 } else { 0 };
         for (i, (actual, expected)) in actual_lines.iter().zip(expected_lines.iter()).enumerate() {
             let line_num = i + 1;
-            if line_num == 9 { continue; }
+            if line_num == rem_line_num { continue; }
             
             assert_eq!(actual.trim(), expected.trim(), "Mismatch at line {}", line_num);
         }
@@ -789,10 +834,11 @@ mod tests {
         let actual_lines: Vec<&str> = actual_content.lines().collect();
         let expected_lines: Vec<&str> = expected_content.lines().collect();
         
-        // Compare lines, ignoring line 9 (version number)
+        // Compare lines, ignoring the ScriptedBibleEditor \rem line if it was inserted
+        let rem_line_num = if state.control_data.insert_sbeditor_rem_line { 8 } else { 0 };
         for (i, (actual, expected)) in actual_lines.iter().zip(expected_lines.iter()).enumerate() {
             let line_num = i + 1;
-            if line_num == 8 { continue; }
+            if line_num == rem_line_num { continue; }
             
             assert_eq!(actual.trim(), expected.trim(), "Mismatch at line {}", line_num);
         }

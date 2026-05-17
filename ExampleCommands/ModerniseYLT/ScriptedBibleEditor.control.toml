@@ -19,6 +19,9 @@ outputFolder = "../../TestFiles/modernised_YLT_USFM/"
 createOutputFolder = true
 clearOutpuFolder = true
 
+insertSBEditorRemLine = false
+handleESFMWordNumbers = false
+
 applyOrder = "AllTablesFirst"
 
 # Command tables are applied in the given order
